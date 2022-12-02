@@ -27,17 +27,7 @@ namespace GameFrameWork
             var name = resourceRequirement.Arg1;
             var obj =Resources.LoadAsync<T>(name);
             RequirementSystemManager<ResourceRequirement,Action<T>>.Add(resourceRequirement,action);
-            CoroutineLoader.Do(() =>
-            {
-                return CheckResourceRequestIsDone(obj, () =>
-                {
-                    var list = RequirementSystemManager<ResourceRequirement,Action<T>>.Get(resourceRequirement);
-                    foreach (var act in list)
-                    {
-                        act?.Invoke((T)obj.asset);
-                    }
-                });
-            });
+            
         }
 
         public void Release(ResourceRequirement resourceRequirement)

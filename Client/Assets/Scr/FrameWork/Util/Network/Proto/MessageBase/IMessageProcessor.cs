@@ -3,9 +3,9 @@
     /// <summary>
     /// 消息处理者
     /// </summary>
-    public interface IMessageProcessor
+    public interface IMessageProcessor<T>
     {
-        void CreateMessage(MessageBase segment);
-        void Process();
+        //T CreateMessage(MessageBase segment);
+        void Process(T message);
     }
 }

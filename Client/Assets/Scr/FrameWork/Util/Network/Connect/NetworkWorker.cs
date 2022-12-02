@@ -12,10 +12,18 @@ namespace GameFrameWork.Network
 
         private Action<SocketError> m_onDisconnectCallback = null;
 
+        private Action<MessageBase.MessageBase> m_receiveMessageCallback = null;
+
         public Action<SocketError> OnDisconnectCallback
         {
-            get => m_onDisconnectCallback;
+            private get => m_onDisconnectCallback;
             set => m_onDisconnectCallback = value;
+        }
+
+        public Action<MessageBase.MessageBase> OnReceiveMessageCallback
+        {
+            private get => m_receiveMessageCallback;
+            set => m_receiveMessageCallback = value;
         }
 
         private NetworkKeeper m_keeper = new NetworkKeeper();
@@ -59,23 +67,23 @@ namespace GameFrameWork.Network
             m_connect.BeginReceive();
         }
         
-        public void SendAsync(IMessage message)
+        public void SendAsync(DataSegment data)
         {
             NetworkManager.Post(() =>
             {
-                var data = message.GetData();
                 m_connect.SendAsync(data.m_data,data.Length,0);
             });
-            
         }
-
         
-
         void OnReveiceData(byte[] data , int length)
         {
             _dataSegment.Write(data,length);
-            
-            
+
+            MessageBase.MessageBase msg = new MessageBase.MessageBase();
+            if (msg.TrySetData(_dataSegment))
+            {
+                m_receiveMessageCallback?.Invoke(msg);
+            }
         }
 
         void OnConnectError(ConnectErrorStatus status,SocketError error)

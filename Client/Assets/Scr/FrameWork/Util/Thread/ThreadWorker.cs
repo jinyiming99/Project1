@@ -4,7 +4,7 @@ using GameFrameWork.Containers;
 
 namespace GameFrameWork.Thread
 {
-    internal class ThreadWorker
+    public class ThreadWorker
     {
         enum WorkerEnum
         {
@@ -49,7 +49,15 @@ namespace GameFrameWork.Thread
                     {
                         if (status == WorkerEnum.Stop)
                             return;
-                        node?.Invoke();
+                        try
+                        {
+                            node?.Invoke();
+                        }
+                        catch (Exception e)
+                        {
+                            FrameWork.GetFrameWork().Components.DebugManager.LogError(e.ToString());
+                        }
+                        
                     }
                 }
                 else

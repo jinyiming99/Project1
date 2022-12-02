@@ -1,90 +1,110 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 namespace GameFrameWork.DebugTools
 {
-    internal class DebugManager : SingleInstance.MonoSingleInstanceDontDestroy<DebugManager>
+    internal class DebugManager : MonoBehaviour
     {
-        public override bool IsNeedRegister => false;
+        
+        private static bool isDebug = false;
+        /// <summary>
+        /// ÊÇ·ñ¹¤×÷
+        /// </summary>
+        public static bool DebugWork
+        {
+            get
+            {
+                return isDebug;
+            }
+            set
+            {
+                isDebug = value;
+            }
+        }
+        internal enum DebugType
+        {
+            Log,
+            Warning,
+            Error,
+        }
+        /// <summary>
+        /// ÅäÖÃ
+        /// </summary>
+        private DebugManagerConfig m_config = new DebugManagerConfig() { m_bShowFPS = true,m_bSaveLog = true, m_bDebugWork = true, m_bShowDebugWindow = true };
+
+        public DebugManagerConfig Config => m_config;
         public Dictionary<DebugTypeEnum, DebugData> m_dic;
         GUIWindowBase m_windows = null;
 
-        Dictionary<string, GUIWindowBase> m_windowsDic = new Dictionary<string, GUIWindowBase>();
         public DebugSaveFileManager m_logFile ;
-
-        ShowFPS m_fpsTip = null;
+        
         bool m_isShow = false;
-        public bool debugBattle = false;
-        protected override void OnAwake()
-        {
-            //if (!DebugHelper.DebugWork) return;
-            m_dic = new Dictionary<DebugTypeEnum, DebugData>();
-            for (var i = DebugTypeEnum.Start; i < DebugTypeEnum.End;i++)
-                m_dic.Add(i, new DebugData());
 
+        protected void Awake()
+        {
             m_logFile = new DebugSaveFileManager();
-            m_fpsTip = gameObject.AddComponent<ShowFPS>();
-            ShowFPSTip(DebugHelper.ShowFPS);
         }
 
-        protected override void OnRelease()
+        protected void OnDestroy()
         {
-            base.OnRelease();
-            DebugManager.Instance.m_logFile.Save();
+            m_logFile.Save();
         }
-        public DebugData GetData(DebugTypeEnum e)
+        // private void OnGUI()
+        // {
+        //     if (!DebugWork) return;
+        //     m_isShow = GUI.Toggle(new Rect(10, 1500, 100, 100), m_isShow, "");
+        //     if (m_isShow)
+        //     {
+        //
+        //         GUILayout.BeginHorizontal();
+        //         int i = 0;
+        //         foreach (var value in m_windowsDic)
+        //         {
+        //
+        //             if (GUI.Button(new Rect(i * 150, 0, (i + 1) * 150, 150), value.Key))
+        //             {
+        //                 if (m_windows == value.Value)
+        //                     m_windows = null;
+        //                 else
+        //                     m_windows = value.Value;
+        //             }
+        //
+        //             i++;
+        //         }
+        //
+        //
+        //         GUILayout.EndHorizontal();
+        //         if (m_windows != null)
+        //         {
+        //             m_windows.DrawOnGUI();
+        //         }
+        //     }
+        // }
+
+        public void Log(string str)
         {
-            if (!m_dic.ContainsKey(e))
-                return null;
-            return m_dic[e];
+            LogData(str, DebugType.Log);
+        }
+        
+        public void LogWarning(string str)
+        {
+            LogData(str, DebugType.Warning);
+        }
+        
+        public void LogError(string str)
+        {
+            LogData(str, DebugType.Error);
         }
 
-        public void ShowFPSTip(bool b)
-        {
-            m_fpsTip.enabled = b;
-        }
 
-        public void CreateDebugWindow()
+        private void LogData(string str, DebugType type)
         {
-#if !UNITY_EDITOR
-           //m_windowsDic.Add("log", new DebugWindows(new UnityEngine.Rect(0,150,640,880))); 
-#endif
-        }
-
-        private void OnGUI()
-        {
-            if (!DebugHelper.DebugWork) return;
-            m_isShow = GUI.Toggle(new Rect(10, 1500, 100, 100), m_isShow, "");
-            if (m_isShow)
+            if (m_config.m_bSendLog)
             {
 
-                GUILayout.BeginHorizontal();
-                int i = 0;
-                foreach (var value in m_windowsDic)
-                {
-
-                    if (GUI.Button(new Rect(i * 150, 0, (i + 1) * 150, 150), value.Key))
-                    {
-                        if (m_windows == value.Value)
-                            m_windows = null;
-                        else
-                            m_windows = value.Value;
-                    }
-
-                    i++;
-                }
-
-
-                GUILayout.EndHorizontal();
-                if (m_windows != null)
-                {
-                    m_windows.DrawOnGUI();
-                }
-
-                
             }
-            else
-            {
-            }
+            if (m_config.m_bSaveLog)
+                m_logFile.AddLog(str);
         }
 
         public void AddData(DebugTypeEnum e, string data)

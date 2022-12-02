@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using GameFrameWork;
+using UnityEngine;
 /// <summary>
 /// 游戏基础对象
 /// </summary>
@@ -6,10 +7,12 @@ public class GameObjectUnit : MonoBehaviour
 {
     [HideInInspector]
     public Transform m_transform;
-    
-    private void Awake()
+    [HideInInspector]
+    public GameObject m_gameObject;
+    protected void Awake()
     {
         m_transform = transform;
+        m_gameObject = gameObject;
         OnAwake();
     }
 
@@ -19,15 +22,22 @@ public class GameObjectUnit : MonoBehaviour
     }
 
     protected virtual void OnAwake()    {}
-
-    public static T LoadResource<T>(string name) where T : UnityEngine.Object
+    
+    
+    public virtual void Show()
     {
-        return GameFrameWork.ResourceHelper.LoadResource<T>(name);
+        m_gameObject.SetActive(true);
     }
 
+    public virtual void Hide()
+    {
+        m_gameObject.SetActive(false);
+    }
+    
+    
     public static void LoadResourceAsync<T>(string name, System.Action<T> action) where T : Object
     {
-        GameFrameWork.ResourceHelper.LoadResourceAsync(name,action);
+        FrameWork.GetFrameWork().Components.ResourceManager.LoadResource<T>(name,action);
     }
 
     public static T CreateNewGameObject<T>() where T: MonoBehaviour

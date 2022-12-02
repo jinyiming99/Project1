@@ -1,6 +1,5 @@
-﻿using System;
-using UnityEngine;
-using Game.System;
+﻿using UnityEngine;
+using GameFrameWork;
 using GameFrameWork.SingleInstance;
 
 namespace Game.Input
@@ -35,7 +34,7 @@ namespace Game.Input
 
         public override void CallBack(ControlEventEnum e)
         {
-            GameSystemManager.Instance.OnEvent<ControlEventEnum>(GameEventEnum
+            FrameWork.GetFrameWork().EventController.OnEvent<ControlEventEnum>(GameEventEnum
                 .OnInputEvent,e);
         }
      

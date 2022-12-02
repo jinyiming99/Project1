@@ -20,7 +20,7 @@ public class AnimationControl : MonoBehaviour
     private void Awake()
     {
         m_animator = GetComponent<Animator>();
-        m_animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        //m_animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
         m_clipStroage = AnimationStroage.CreateStroage(m_animator);
     }
 
@@ -240,5 +240,37 @@ public class AnimationControl : MonoBehaviour
     public void OnStateExit(AnimatorStateInfo info)
     {
         m_clipStroage.OnStateExit(info);
+    }
+
+    public bool HaveEvent(string clipName, string eventStr)
+    {
+        var clip = m_clipStroage.GetClip(clipName);
+        var events = clip.events;
+        foreach (var e in events)
+        {
+            if (e.stringParameter.Contains(eventStr) && e.functionName.Contains("OnAnimationEvent"))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void AddEvent(string clipName,string eventStr)
+    {
+        if (m_clipStroage.HaveState(clipName))
+        {
+            var clip = m_clipStroage.GetClip(clipName);
+            
+            if (!HaveEvent(clipName,eventStr))
+            {
+                AnimationEvent @event = new AnimationEvent();
+                @event.functionName = "OnAnimationEvent";
+                @event.time = clip.length;
+                @event.stringParameter = eventStr;
+                clip.AddEvent(@event);
+            }
+        }
     }
 }

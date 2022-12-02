@@ -1,23 +1,62 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 namespace GameFrameWork
 {
     public class ResourceManager
     {
-        public ResourceStorage m_resourceStorage = new ResourceStorage();
+        public void LoadGameObject(string name,Action<GameObject> action)
+        {
+            Addressables.InstantiateAsync(name).Completed += (handle =>
+            {
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                    action?.Invoke(handle.Result);
+                else
+                    DebugTools.DebugHelper.LogError(() =>handle.OperationException.ToString());
+            });
+        }
 
-        public void Init()
+        public void LoadResource<T>(string name, Action<T> action)
+        {
+            Addressables.LoadAssetAsync<T>(name).Completed += (handle =>
+            {
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                    action?.Invoke(handle.Result);
+                else
+                    DebugTools.DebugHelper.LogError(() =>handle.OperationException.ToString());
+            });
+        }
+
+        public void LoadScene(string name,LoadSceneMode loadMode ,Action<Scene> action)
+        {
+            Addressables.LoadSceneAsync(name,loadMode).Completed += (handle =>
+            {
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                    action?.Invoke(handle.Result.Scene);
+                else
+                    DebugTools.DebugHelper.LogError(() =>handle.OperationException.ToString());
+            });
+        }
+
+        public void Release()
         {
             
         }
-
-        public T LoadResourceFromStorage<T>(ResourceRequirement requirement) where T:Object
+        public void ReleaseInstance(ref GameObject obj)
         {
-            return m_resourceStorage.LoadResource<T>(requirement);
+            if (obj != null)
+                Addressables.ReleaseInstance(obj);
         }
-        public void LoadResourceFromStorageAsync<T>(ResourceRequirement requirement,Action<T> action) where T:Object
+
+        public void ReleaseAsset<T>(ref T obj) where T : class
         {
-            m_resourceStorage.LoadResourceAsync<T>(requirement,action);
+            if (obj != null)
+                Addressables.Release(obj);
         }
     }
 }

@@ -6,23 +6,37 @@ using GameFrameWork.Network.Server;
 
 namespace Game
 {
-    public class HangGame : GameFrameWork.Game<GameFSM>
+    public class HangGame : GameFrameWork.Game
     {
-        //private GameFrameWork.Network.Client.TcpClient m_client;
-
+        private GameFSM _fsm ;
         public override void Init()
         {
-            base.Init();
+            _fsm = new GameFSM();
+        }
+
+        public override void Start()
+        {
+            
+        }
+
+        public override void Resume()
+        {
+            
         }
 
         public override void Release()
         {
-            //m_client.Release();
+            _fsm.Release();
         }
 
-        private void Update()
+        public override void Update()
         {
-            m_fsm.Update(); 
+            _fsm.Update();
+        }
+
+        public override void Pause()
+        {
+            
         }
     }
 }

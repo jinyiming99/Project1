@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using Game;
 using Game.Input;
 using UnityEngine;
-using GameFrameWork.DebugTools;
-using GameFrameWork.SingleInstance;
-using Game.System;
 
 
 public class InputComponent<T> : MonoBehaviour

@@ -3,13 +3,7 @@ using GameFrameWork.Pool;
 
 namespace GameFrameWork.Network.MessageBase
 {
-    public class MessageBasePoolInstance : SingleInstance.SingleInstance<MessageBasePool> { }
-
-    public class MessageBasePool :StackPool<MessageBase>
-    {
-        
-    }
-    public class MessageBase : IMessage
+    public class MessageBase
     {
         public static int Count = 0;
         public static int GetSeq() => Count++;
@@ -38,7 +32,7 @@ namespace GameFrameWork.Network.MessageBase
 
         public DataSegment GetData()
         {
-            var data = DataSegmentPoolInstance.Instance.Pop();
+            var data = new DataSegment();
             int length = 0;
             data.ClearPos();
             data.Write(m_messageID);
@@ -58,7 +52,6 @@ namespace GameFrameWork.Network.MessageBase
                 data.TryReadInt(out m_length) &&
                 data.TryReadDatas(out m_data))
             {
-
                 return true;
             }
 

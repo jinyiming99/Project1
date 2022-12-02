@@ -47,12 +47,10 @@ namespace GameFrameWork.Network
                         {
                             System.Buffer.BlockCopy(m_data, 0, newData, 0, m_pos);
                         }
-
                         m_data = newData;
                         return;
                     }
                 }
-                
             }
         }
 

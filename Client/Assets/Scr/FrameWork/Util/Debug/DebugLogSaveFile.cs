@@ -23,13 +23,9 @@ namespace GameFrameWork.DebugTools
             m_index = index;
             m_foldName = foldName;
             string path = GetPath();
-            if (DebugHelper.DebugWork && DebugHelper.ShowWindow) 
-                    DebugManager.GetInstance().AddData(DebugTypeEnum.Base, "log file path is = " + path);
             string p = GetFoldPath();
             if (!Directory.Exists(p))
             {
-                if (DebugHelper.DebugWork && DebugHelper.ShowWindow)
-                    DebugManager.GetInstance().AddData(DebugTypeEnum.Base, "Directory.Exists(p) =" + p);
                 Directory.CreateDirectory(p);
             }
             if (!Directory.Exists(p + "/" + m_foldName))
@@ -42,7 +38,10 @@ namespace GameFrameWork.DebugTools
         }
         public void Write(string path)
         {
-            m_w.WriteLine(path);
+            FrameWork.GetFrameWork().Components.ThreadWorker.Post(()=>
+            {
+                m_w.WriteLine(path);
+            });
         }
         public long GetSize()
         {
@@ -54,8 +53,6 @@ namespace GameFrameWork.DebugTools
 
             string name = "/{1}/Debug_log{0}.txt";
             name = string.Format(name, m_index, m_foldName);
-
-
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR
             path = GetFoldPath() + name;
 #elif UNITY_ANDROID
@@ -63,9 +60,6 @@ namespace GameFrameWork.DebugTools
 #elif UNITY_IOS
 
 #endif
-
-
-
             return path;
         }
 

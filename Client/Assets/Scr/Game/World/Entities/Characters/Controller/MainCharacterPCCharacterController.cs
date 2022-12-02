@@ -1,4 +1,5 @@
 ﻿using Game.Input;
+using GameFrameWork;
 
 namespace Game.Characters
 {
@@ -9,7 +10,7 @@ namespace Game.Characters
 
         public void Init()
         {
-            System.GameSystemManager.Instance.AddEvent<ControlEventEnum>(GameEventEnum.OnInputEvent, (code) =>
+            FrameWork.GetFrameWork().EventController.AddEvent<ControlEventEnum>(GameEventEnum.OnInputEvent, (code) =>
             {
                 SwitchInputControl(code);
             });

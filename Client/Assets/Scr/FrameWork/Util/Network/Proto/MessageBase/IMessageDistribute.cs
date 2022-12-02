@@ -8,6 +8,6 @@
     {
         void CreateMessageDic();
 
-        bool Find(int index,out IMessageProcessor creater);
+        bool Find(int index,out IMessageProcessor<T> creater);
     }
 }

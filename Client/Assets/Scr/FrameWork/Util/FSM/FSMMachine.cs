@@ -5,6 +5,8 @@
     public interface IFSMMachine
     {
         void Update();
+
+        void Release();
     }
     /// <summary>
     /// 状态机
@@ -65,6 +67,11 @@
                 m_curState.Update(m_data);
         }
 
+        public virtual void Release()
+        {
+            if (m_curState != null)
+                m_curState.Release(m_data);
+        }
         /// <summary>
         /// 添加状态
         /// </summary>

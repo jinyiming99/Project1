@@ -7,34 +7,25 @@ using UnityEngine;
 
 namespace GameFrameWork
 {
-    public abstract class Game : MonoBehaviour
+    public abstract class Game
     {
+        FrameWorkComponents _components;
+        public FrameWorkComponents Components => _components;
+        
+        internal void SetComponents(FrameWorkComponents components)
+        {
+            _components = components;
+        }
+        /// <summary>
+        /// 初始化
+        /// </summary>
         public abstract void Init();
+        public abstract void Start();
+        public abstract void Update();
+
+        public abstract void Pause();
+
+        public abstract void Resume();
         public abstract void Release();
-    }
-    public abstract class Game<FSM> : Game where FSM:IFSMMachine ,new()
-    {
-        protected FSM m_fsm;
-        public override void Init()
-        {
-            m_fsm = new FSM();
-        }
-
-        public override void Release()
-        {
-            
-        }
-
-        private void Update()
-        {
-            m_fsm?.Update();
-        }
-
-        private void OnDestroy()
-        {
-            Release();
-        }
-
-
     }
 }
