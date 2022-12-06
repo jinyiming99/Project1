@@ -10,7 +10,6 @@ namespace GameFrameWork.UI
         protected override void OnAwake()
         {
             _animator = m_gameObject.GetComponent<AnimationControl>();
-            
         }
         
         

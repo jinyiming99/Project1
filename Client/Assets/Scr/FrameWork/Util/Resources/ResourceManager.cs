@@ -10,6 +10,10 @@ namespace GameFrameWork
 {
     public class ResourceManager
     {
+        internal ResourceManager()
+        {
+            
+        }
         public void LoadGameObject(string name,Action<GameObject> action)
         {
             Addressables.InstantiateAsync(name).Completed += (handle =>
@@ -47,13 +51,13 @@ namespace GameFrameWork
         {
             
         }
-        public void ReleaseInstance(ref GameObject obj)
+        public void ReleaseInstance(GameObject obj)
         {
             if (obj != null)
                 Addressables.ReleaseInstance(obj);
         }
 
-        public void ReleaseAsset<T>(ref T obj) where T : class
+        public void ReleaseAsset<T>(T obj) where T : class
         {
             if (obj != null)
                 Addressables.Release(obj);

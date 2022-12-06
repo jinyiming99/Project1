@@ -13,7 +13,6 @@ namespace Game.GameStatus
         {
             m_dic.Add(GameStatusEnum.Game_Init, new GameInitStatus());
             m_dic.Add(GameStatusEnum.Game_MainPanel, new GameMainPanelStatus());
-            ChangeState(GameStatusEnum.Game_Init);
         }
 
         public void Release()

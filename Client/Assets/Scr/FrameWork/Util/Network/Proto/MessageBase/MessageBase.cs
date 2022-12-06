@@ -3,22 +3,22 @@ using GameFrameWork.Pool;
 
 namespace GameFrameWork.Network.MessageBase
 {
-    public class MessageBase
+    public struct MessageBase
     {
         public static int Count = 0;
         public static int GetSeq() => Count++;
         
         
-        public short m_messageID;
-        public short m_cmd;
+        public short m_messageID ;
+        public short m_cmd ;
         public int m_seq;
         public int m_length;
         public byte[] m_data;
 
-        public MessageBase()
-        {
-            m_seq = GetSeq();
-        }
+        // public MessageBase()
+        // {
+        //     //m_seq = GetSeq();
+        // }
         public void SetData(byte[] arr,int length)
         {
             m_data = arr;

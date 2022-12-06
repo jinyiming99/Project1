@@ -16,7 +16,7 @@ namespace Game
 
         public override void Start()
         {
-            
+            _fsm.ChangeState(GameStatusEnum.Game_Init );
         }
 
         public override void Resume()
