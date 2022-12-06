@@ -36,11 +36,6 @@ namespace GameFrameWork
 
         public Game CurGame => _game;
         /// <summary>
-        /// 事件系统
-        /// </summary>
-        private FrameEventController _eventController;
-        public FrameEventController EventController => _eventController;
-        /// <summary>
         /// 框架组件
         /// </summary>
         private FrameWorkComponents _components;

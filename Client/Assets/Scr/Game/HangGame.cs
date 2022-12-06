@@ -9,6 +9,8 @@ namespace Game
     public class HangGame : GameFrameWork.Game
     {
         private GameFSM _fsm ;
+        private FrameEventController _event;
+        public FrameEventController EventSystem;
         public override void Init()
         {
             _fsm = new GameFSM();

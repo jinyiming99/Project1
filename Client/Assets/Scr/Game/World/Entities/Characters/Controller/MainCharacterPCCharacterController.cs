@@ -10,10 +10,10 @@ namespace Game.Characters
 
         public void Init()
         {
-            FrameWork.GetFrameWork().EventController.AddEvent<ControlEventEnum>(GameEventEnum.OnInputEvent, (code) =>
-            {
-                SwitchInputControl(code);
-            });
+            // FrameWork.GetFrameWork().EventController.AddEvent<ControlEventEnum>(GameEventEnum.OnInputEvent, (code) =>
+            // {
+            //     SwitchInputControl(code);
+            // });
         }
 
         private void SwitchInputControl(ControlEventEnum @enum)
