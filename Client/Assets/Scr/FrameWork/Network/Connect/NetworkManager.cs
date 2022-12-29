@@ -19,7 +19,11 @@ namespace GameFrameWork.Network
         public NetworkListener CreateServer(string ip,int post,int listenCount,Action<NetworkWorker> action)
         {
             TcpListener listener = TcpListener.CreateTcpListener(ip,post,listenCount);
-            var networker = m_userManager?.CreateListener(listener,action);
+            var networker = m_userManager?.CreateListener(listener, (connect) =>
+            {
+                var con = m_userManager?.CreateUser(connect);
+                action?.Invoke(con);
+            });
             return networker;
         }
         

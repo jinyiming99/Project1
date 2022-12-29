@@ -178,7 +178,6 @@ namespace GameFrameWork.Network
                         }
                         else ///读取成功,丢回给上级
                         {
-                        
                             m_reveiceCallback?.Invoke(m_receiveData,size);
                             ReceiveAsync();
                         }

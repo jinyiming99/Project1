@@ -7,16 +7,17 @@ namespace GameFrameWork.Network
     {
         private int m_id = NetworkCounter.GetCount();
         private IListener m_listener;
-        private Action<NetworkWorker> m_action;
+        private Action<TcpConnect> m_action;
         public ListenerSocketCallBack AppeptCallback => OnAppept;
-        public NetworkListener(IListener l, Action<NetworkWorker> a)
+        public NetworkListener(TcpListener l, Action<TcpConnect> a)
         {
             m_listener = l;
+            l.Callback = OnAppept;
             m_action = a;
         }
         private void OnAppept(TcpConnect connect)
         {
-            m_action?.Invoke(new NetworkWorker(connect));
+            m_action?.Invoke(connect);
         }
 
         public void StartListen()

@@ -13,8 +13,6 @@ namespace GameFrameWork.Network
         private ListenerSocketCallBack m_callback;
         public ListenerSocketCallBack Callback { set; get; }
 
-        private Action<NetworkWorker> ListenCallBack;
-        
         private TcpListener(Socket socket)
         {
             m_socket = socket;

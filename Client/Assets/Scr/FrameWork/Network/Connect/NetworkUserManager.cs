@@ -15,10 +15,9 @@ namespace GameFrameWork.Network
             return worker;
         }
         
-        public NetworkListener CreateListener(TcpListener l,Action<NetworkWorker> a)
+        public NetworkListener CreateListener(TcpListener l,Action<TcpConnect> a)
         {
             NetworkListener listener = new NetworkListener(l,a);
-            l.Callback = listener.AppeptCallback;
             m_userDic.Add(listener.GetID(), listener);
             return listener;
         }
