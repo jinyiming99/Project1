@@ -1,4 +1,6 @@
-﻿using GameFrameWork.Thread;
+﻿using GameFrameWork.Network;
+using GameFrameWork.Thread;
+using GameFrameWork.Timer;
 
 namespace GameFrameWork
 {
@@ -18,7 +20,13 @@ namespace GameFrameWork
         internal DebugTools.DebugManager DebugManager => _debugManager;
 
         private ThreadWorker _threadWorker; 
-        public ThreadWorker ThreadWorker => _threadWorker; 
+        public ThreadWorker ThreadWorker => _threadWorker;
+        
+        private TimeTaskManager _timeTaskManager; 
+        public TimeTaskManager TimeTaskManager => _timeTaskManager;
+
+        private NetworkManager _networkManager = new NetworkManager();
+        public NetworkManager Network => _networkManager;
         public void Init()
         {
             _mCoroutineWorkerComponent = GameObjectInstance.Instance.AddComponent<CoroutineWorkerComponent>();

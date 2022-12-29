@@ -2,6 +2,7 @@
 {
     public interface INetworkWorker
     {
+        int GetID();
         void Release();
     }
 }

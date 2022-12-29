@@ -1,52 +1,65 @@
 ﻿using System;
 using System.Collections.Generic;
-using GameFrameWork.Network.Server;
+using GameFrameWork.Network.Client;
+using GameFrameWork.Network.Interface;
 
 namespace GameFrameWork.Network
 {
-    internal class NetworkManager
+    public class NetworkManager
     {
-        private ConnectProtoType  m_protoType= ConnectProtoType.None;
-
-        public ConnectProtoType ProtoType
-        {
-            set => m_protoType = value;
-            get => m_protoType;
-        }
-        private NetworkManagerWorkType m_workType;
-        public NetworkManagerWorkType workType
-        {
-            set => m_workType = value;
-            get => m_workType;
-        }
-        
         private NetworkUserManager m_userManager;
-        private List<NetworkWorker> m_connectList = new List<NetworkWorker>(4);
-        
-
-        private static NetworkThreadWork s_thread = new NetworkThreadWork();
 
         public NetworkManager()
         {
             m_userManager = new NetworkUserManager();
-            s_thread.Start();
         }
 
-        public static void Post(Action action)
+        #region tcp server
+
+        public NetworkListener CreateServer(string ip,int post,int listenCount,Action<NetworkWorker> action)
         {
-            if (s_thread != null)
-            {
-                s_thread.Post(action);
-            }
+            TcpListener listener = TcpListener.CreateTcpListener(ip,post,listenCount);
+            var networker = m_userManager?.CreateListener(listener,action);
+            return networker;
+        }
+        
+        public void CloseServer(NetworkListener listener)
+        {
+            if (listener == null)
+                return;
+            listener.Release();
+            m_userManager?.ReleaseWorker(listener);
         }
 
-        
+        #endregion
 
+        #region tcpworker
 
+        public void CreateTcpConnectAsync(string ip, int port, Action<NetworkWorker> action)
+        {
+            TcpClient.ConnectServerAsync(ip,port, (connect) =>
+            {
+                var user = m_userManager?.CreateUser(connect);
+                action?.Invoke(user);
+            });
+        }
 
+        public NetworkWorker CreateTcpConnect(string ip, int port)
+        {
+            var connect = TcpClient.ConnectServer(ip, port);
+            var user = m_userManager?.CreateUser(connect);
+            return user;
+        }
+
+        public void CloseTcpConnect(NetworkWorker worker)
+        {
+            worker.Release();
+            m_userManager?.ReleaseWorker(worker);
+        }
+        #endregion
         public void Release()
         {
-            s_thread.Stop();
+            m_userManager?.Release();
         }
     }
 }

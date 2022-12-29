@@ -130,7 +130,7 @@ namespace GameFrameWork.Network
                 {
                     if (m_isConnected)
                     {
-                        NetworkManager.Post(() =>
+                        FrameWork.GetFrameWork()?.Components?.ThreadWorker?.Post(() =>
                         {
                             int size = m_socket.EndSend(iar, out var errorCode);
                             if (size == 0 || errorCode != SocketError.Success)
@@ -168,7 +168,7 @@ namespace GameFrameWork.Network
                     ///这里是异步操作
                     if (!m_isConnected) return;
                     //进入工作线程
-                    NetworkManager.Post(() =>
+                    FrameWork.GetFrameWork()?.Components?.ThreadWorker?.Post(() =>
                     {
                         int size = m_socket.EndReceive(iar, out var errorCode);
                         if (size == 0 || errorCode != SocketError.Success)

@@ -3,22 +3,19 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using GameFrameWork.Network.MessageBase;
-using GameFrameWork.Network.Server;
 
 namespace GameFrameWork.Network.Client
 {
     public class TcpClient 
     {
-        public static NetworkWorker ConnectServer(string ip, int port)
+        public static TcpConnect ConnectServer(string ip, int port)
         {
             var connect = Connect(ip, port);
             connect.IP = ip;
             connect.Port = port;
-            return NetworkUserManager.CreateUser(connect);
-
+            return connect;
         }
-
-        public static async Task<NetworkWorker> ConnectServerAsync(string ip, int port)
+        public static void ConnectServerAsync(string ip, int port,Action<TcpConnect> action)
         {
             Socket socket = CreateConnect();
             var address = IPAddress.Parse(ip);
@@ -28,7 +25,10 @@ namespace GameFrameWork.Network.Client
                 {
                     socket.BeginConnect(address, port,ar =>
                     {
-                        
+                        var connect = TcpConnect.CreateConnect(socket);
+                        connect.IP = ip;
+                        connect.Port = port;
+                        action?.Invoke(connect); 
                     },null);
                 }
                 catch (Exception e)
@@ -39,11 +39,6 @@ namespace GameFrameWork.Network.Client
                 }
             }
             socket.NoDelay = true;
-            
-            var connect = TcpConnect.CreateConnect(socket);
-            connect.IP = ip;
-            connect.Port = port;
-            return NetworkUserManager.CreateUser(connect);
         }
 
         private static TcpConnect Connect(string ip,int port)

@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-namespace GameFrameWork
+namespace GameFrameWork.Timer
 {
 
-    public class TimeTaskManager : SingleInstance.SingleInstance<TimeTaskManager>
+    public class TimeTaskManager 
     {
         private List<TimeTask> m_taskList = null;
         private List<TimeTask> m_willRemove = null;
@@ -94,7 +94,7 @@ namespace GameFrameWork
             }
         }
 
-        public override void OnRelease()
+        public void Release()
         {
             m_willAdd.Clear();
             m_willRemove.Clear();

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace FrameWork
+namespace GameFrameWork
 {
     public struct FloatTimeCounter
     {

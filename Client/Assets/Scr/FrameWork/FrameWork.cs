@@ -21,6 +21,11 @@ namespace GameFrameWork
             return s_frameWork;
         }
 
+        public static T GetGame<T>() where T :Game ,new ()
+        {
+            return s_frameWork._game as T;
+        }
+
         internal FrameWork(FrameWorkConfig config)
         {
             _config = config;

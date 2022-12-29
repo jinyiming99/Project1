@@ -10,6 +10,8 @@ namespace GameFrameWork.Network
     {
         private IConnect m_connect;
 
+        private int m_id = NetworkCounter.GetCount();
+
         private Action<SocketError> m_onDisconnectCallback = null;
 
         private Action<MessageBase.MessageBase> m_receiveMessageCallback = null;
@@ -69,7 +71,7 @@ namespace GameFrameWork.Network
         
         public void SendAsync(DataSegment data)
         {
-            NetworkManager.Post(() =>
+            FrameWork.GetFrameWork().Components.ThreadWorker.Post(() =>
             {
                 m_connect.SendAsync(data.m_data,data.Length,0);
             });
@@ -91,6 +93,11 @@ namespace GameFrameWork.Network
             m_onDisconnectCallback?.Invoke(error);
         }
 
+
+        public int GetID()
+        {
+            return m_id;
+        }
 
         public void Release()
         {
