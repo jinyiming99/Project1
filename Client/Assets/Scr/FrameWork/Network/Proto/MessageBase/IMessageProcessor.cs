@@ -3,9 +3,12 @@
     /// <summary>
     /// 消息处理者
     /// </summary>
-    public interface IMessageProcessor<T>
+    public interface IMessageProcessor
     {
-        //T CreateMessage(MessageBase segment);
-        void Process(T message);
+        int GetEnum();
+        void CreateMessage(MessageBase segment);
+
+        void Sort();
+        void Processor();
     }
 }

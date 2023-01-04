@@ -3,22 +3,22 @@ using GameFrameWork.Pool;
 
 namespace GameFrameWork.Network.MessageBase
 {
-    public struct MessageBase
+    public class MessageBase
     {
-        public static int Count = 0;
+        private static int Count = 0;
         public static int GetSeq() => Count++;
         
         
         public short m_messageID ;
         public short m_cmd ;
-        public int m_seq;
+        public int m_ack;
         public int m_length;
         public byte[] m_data;
 
-        // public MessageBase()
-        // {
-        //     //m_seq = GetSeq();
-        // }
+        public MessageBase()
+        {
+            m_ack = GetSeq();
+        }
         public void SetData(byte[] arr,int length)
         {
             m_data = arr;
@@ -37,7 +37,7 @@ namespace GameFrameWork.Network.MessageBase
             data.ClearPos();
             data.Write(m_messageID);
             data.Write(m_cmd);
-            data.Write(m_seq);
+            data.Write(m_ack);
             data.Write(m_length);
             data.Write(m_data,m_data.Length);
             return data;
@@ -48,13 +48,38 @@ namespace GameFrameWork.Network.MessageBase
             var off = data.Length;
             if (data.TryReadShort(out m_messageID) &&
                 data.TryReadShort(out m_cmd) &&
-                data.TryReadInt(out m_seq) &&
+                data.TryReadInt(out m_ack) &&
                 data.TryReadInt(out m_length) &&
                 data.TryReadDatas(out m_data))
             {
                 return true;
             }
 
+            data.Length = off;
+            return false;
+        }
+
+        public static bool TryGetMessage(DataSegment data,out MessageBase msg)
+        {
+            var off = data.Length;
+            if (data.TryReadShort(out var messageID) &&
+                data.TryReadShort(out var cmd) &&
+                data.TryReadInt(out var seq) &&
+                data.TryReadInt(out var length) &&
+                data.TryReadDatas(out var arr))
+            {
+                msg = new MessageBase()
+                {
+                    m_ack = seq,
+                    m_messageID = messageID,
+                    m_cmd = cmd,
+                    m_length = length,
+                    m_data = arr,
+                };
+                return true;
+            }
+
+            msg = null;
             data.Length = off;
             return false;
         }

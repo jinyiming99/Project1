@@ -7,17 +7,13 @@ namespace GameFrameWork.Network.MessageBase
     /// 消息处理
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class MessageDistribute<T> :IMessageDistribute<T>
+    public abstract class MessageDistribute :IMessageDistribute
     {
-        private static Dictionary<int, IMessageProcessor<T>> m_createrDic = new Dictionary<int, IMessageProcessor<T>>();
+        protected static Dictionary<int, IMessageProcessor> m_createrDic = new Dictionary<int, IMessageProcessor>();
         
         public abstract void CreateMessageDic();
-        bool IMessageDistribute<T>.Find(int index, out IMessageProcessor<T> creater)
-        {
-            return Find(index, out creater);
-        }
 
-        public static bool Find(int index,out IMessageProcessor<T> creater)
+        public bool Find(int index,out IMessageProcessor creater)
         {
             return m_createrDic.TryGetValue(index, out creater);
         }

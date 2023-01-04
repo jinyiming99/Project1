@@ -76,16 +76,20 @@ namespace GameFrameWork.Network
                 m_connect.SendAsync(data.m_data,data.Length,0);
             });
         }
+        public void SendAsync(byte[] datas,int length)
+        {
+            FrameWork.GetFrameWork().Components.ThreadWorker.Post(() =>
+            {
+                m_connect.SendAsync(datas,length,0);
+            });
+        }
         
         void OnReveiceData(byte[] data , int length)
         {
             _dataSegment.Write(data,length);
 
-            MessageBase.MessageBase msg = new MessageBase.MessageBase();
-            if (msg.TrySetData(_dataSegment))
-            {
+            if (MessageBase.MessageBase.TryGetMessage(_dataSegment, out var msg))
                 m_receiveMessageCallback?.Invoke(msg);
-            }
         }
 
         void OnConnectError(ConnectErrorStatus status,SocketError error)

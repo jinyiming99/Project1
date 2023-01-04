@@ -4,10 +4,10 @@
     /// 消息分发者
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IMessageDistribute<T>
+    public interface IMessageDistribute
     {
         void CreateMessageDic();
 
-        bool Find(int index,out IMessageProcessor<T> creater);
+        bool Find(int index,out IMessageProcessor creater);
     }
 }
