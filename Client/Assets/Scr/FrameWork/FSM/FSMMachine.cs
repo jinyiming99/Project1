@@ -14,8 +14,8 @@
     /// <typeparam name="T">状态的数据</typeparam>
     /// <typeparam name="U">状态类型</typeparam>
     /// <typeparam name="Enum">状态枚举</typeparam>
-    public class FSMMachine<T, U, Enum> :IFSMMachine
-            where U : class, IState<T> 
+    public class FSMMachine<U, Enum> :IFSMMachine
+            where U : class, IState 
     {        
         /// <summary>
         /// 状态表
@@ -34,10 +34,6 @@
         /// </summary>
         protected U m_preState;
         /// <summary>
-        /// 状态机数据
-        /// </summary>
-        protected T m_data;
-        /// <summary>
         /// 要传的数据
         /// </summary>
         protected object[] m_args;
@@ -48,11 +44,7 @@
         {
             return m_stateType;
         }
-
-        public FSMMachine(T data)
-        {
-            m_data = data;
-        }
+        
         public FSMMachine()
         {
 
@@ -64,13 +56,13 @@
         {
             Change(m_args);
             if (m_curState != null)
-                m_curState.Update(m_data);
+                m_curState.Update();
         }
 
         public virtual void Release()
         {
             if (m_curState != null)
-                m_curState.Release(m_data);
+                m_curState.Release();
         }
         /// <summary>
         /// 添加状态
@@ -104,19 +96,19 @@
         {
             if (m_nextState != null)
             {
-                if (m_curState != null && m_curState.CanRelease(m_data, args) && m_nextState.CanEnter(m_data, args))
+                if (m_curState != null && m_curState.CanRelease( args) && m_nextState.CanEnter(args))
                 {
-                    m_curState.Release(m_data, args);
+                    m_curState.Release( args);
                     m_preState = m_curState;
                     m_curState = m_nextState;
                     m_nextState = null;
-                    m_curState.Enter(m_data, args);
+                    m_curState.Enter( args);
                 }
                 else if (m_curState == null)
                 {
                     m_curState = m_nextState;
                     m_nextState = null;
-                    m_curState.Enter(m_data, args);
+                    m_curState.Enter(args);
                 }
             }
         }

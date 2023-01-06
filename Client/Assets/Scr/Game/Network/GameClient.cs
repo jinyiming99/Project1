@@ -6,10 +6,10 @@ using Google.Protobuf;
 
 namespace Scr.Game.Network
 {
-    public class Client
+    public class GameClient
     {
         private static ProtoBufMessageDistribute s_messageDistribute;
-        public static Client CreateClient(string ip, int port)
+        public static GameClient CreateClient(string ip, int port)
         {
             if (s_messageDistribute == null)
             {
@@ -17,16 +17,16 @@ namespace Scr.Game.Network
                 s_messageDistribute.CreateMessageDic();
             }
             NetworkWorker worker = FrameWork.GetFrameWork().Components.Network.CreateTcpConnect(ip, port);
-            Client client = new Client(worker)
+            GameClient gameClient = new GameClient(worker)
             {
                 _messageDistribute = s_messageDistribute,
             };
-            return client;
+            return gameClient;
         }
 
         private NetworkWorker m_worker;
         private ProtoBufMessageDistribute _messageDistribute;
-        internal Client(NetworkWorker worker)
+        internal GameClient(NetworkWorker worker)
         {
             m_worker = worker;
             m_worker.OnReceiveMessageCallback = ReveiceMessage;
@@ -52,7 +52,10 @@ namespace Scr.Game.Network
         {
             if (messageBase.m_cmd == (int) MessageCommand.ProtoBuf_Message)
             {
-                //messageBase.m_messageID
+                _messageDistribute.Find(messageBase.m_messageID, out var creater);
+                creater.CreateMessage(messageBase);
+                creater.Processor();
+                creater.ReleaseMessage();
             }
         }
 

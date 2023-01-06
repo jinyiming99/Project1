@@ -1,27 +1,33 @@
-﻿namespace Game.GameStatus
+﻿using Game.GameData;
+using GameFrameWork;
+
+namespace Game.GameStatus
 {
-    public class GamePlayStatus: GameFrameWork.IState<GameData>
+    public class GamePlayStatus: GameFrameWork.IState
     {
-        public bool CanEnter(GameData data, params object[] args)
+        public bool CanEnter(params object[] args)
         {
             return true;
         }
 
-        public void Enter(GameData data, params object[] args)
+        public void Enter(params object[] args)
         {
+            var data = FrameWork.GetGame<HangGame>().data;
+            data._gamePlayData = new GamePlayData();
+            data._gamePlayData._mainCharacterData = new MainCharacterData();
             //SceneCreater
         }
 
-        public void Update(GameData data)
+        public void Update()
         {
         }
 
-        public bool CanRelease(GameData data, params object[] args)
+        public bool CanRelease(params object[] args)
         {
             return true;
         }
 
-        public void Release(GameData data, params object[] args)
+        public void Release(params object[] args)
         {
         }
     }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using GameFrameWork.Network.Client;
+using System.Net;
+using System.Net.Sockets;
 using GameFrameWork.Network.Interface;
+using TcpClient = GameFrameWork.Network.Client.TcpClient;
 
 namespace GameFrameWork.Network
 {
@@ -12,6 +14,18 @@ namespace GameFrameWork.Network
         public NetworkManager()
         {
             m_userManager = new NetworkUserManager();
+        }
+
+        public static string GetLocalIP()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    return ip.ToString();
+            }
+
+            return string.Empty;
         }
 
         #region tcp server

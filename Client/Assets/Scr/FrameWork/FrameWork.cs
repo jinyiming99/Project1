@@ -6,7 +6,7 @@ namespace GameFrameWork
     {
         private static FrameWork s_frameWork;
         
-        public static FrameWork CreateFrameWork<T>(FrameWorkConfig config) where T :Game ,new ()
+        public static FrameWork CreateFrameWork<T>(FrameWorkConfig config) where T :class,IGame ,new ()
         {
             if (s_frameWork == null)
             {
@@ -21,7 +21,7 @@ namespace GameFrameWork
             return s_frameWork;
         }
 
-        public static T GetGame<T>() where T :Game ,new ()
+        public static T GetGame<T>() where T :class,IGame ,new ()
         {
             return s_frameWork._game as T;
         }
@@ -37,9 +37,9 @@ namespace GameFrameWork
         /// <summary>
         /// 游戏对象
         /// </summary>
-        private Game _game;
+        private IGame _game;
 
-        public Game CurGame => _game;
+        public IGame CurGame => _game;
         /// <summary>
         /// 框架组件
         /// </summary>
@@ -56,8 +56,7 @@ namespace GameFrameWork
             _components.LifecycleComponent.DestroyAction += Release;
             _components.LifecycleComponent.GamePauseAction += Pause;
             _components.LifecycleComponent.GameResumeAction += Resume;
-            
-            _game.SetComponents(_components);
+
             _game.Init();
         }
 

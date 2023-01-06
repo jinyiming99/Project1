@@ -7,25 +7,46 @@ using UnityEngine;
 
 namespace GameFrameWork
 {
-    public abstract class Game
+    public abstract class Game<FSM,Data> : IGame
+                                            where FSM: IFSMMachine, new()
+                                            where Data: new()
     {
-        FrameWorkComponents _components;
-        public FrameWorkComponents Components => _components;
-        
-        internal void SetComponents(FrameWorkComponents components)
-        {
-            _components = components;
-        }
+        protected FSM _fsm;
+        protected Data _data;
+        public Data data => _data;
         /// <summary>
         /// 初始化
         /// </summary>
-        public abstract void Init();
-        public abstract void Start();
-        public abstract void Update();
+        public virtual void Init()
+        {
+            _data = new Data();
+            _fsm = new FSM();
+        }
 
-        public abstract void Pause();
+        public virtual void Start()
+        {
 
-        public abstract void Resume();
-        public abstract void Release();
+        }
+
+        public virtual void Resume()
+        {
+            
+        }
+
+        public virtual void Release()
+        {
+            _fsm.Release();
+        }
+
+        public virtual void Update()
+        {
+            _fsm.Update();
+        }
+
+        public virtual void Pause()
+        {
+            
+        }
+        
     }
 }

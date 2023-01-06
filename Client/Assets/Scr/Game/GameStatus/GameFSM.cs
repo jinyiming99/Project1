@@ -2,7 +2,7 @@
 
 namespace Game.GameStatus
 {
-    public class GameFSM : FSMMachine<GameData, GameFrameWork.IState<GameData>, GameStatusEnum>
+    public class GameFSM : FSMMachine<GameFrameWork.IState, GameStatusEnum>
     {
         public GameFSM()
         {
@@ -17,7 +17,7 @@ namespace Game.GameStatus
 
         public void Release()
         {
-            m_curState.Release(m_data);
+            m_curState.Release();
         }
     }
 }

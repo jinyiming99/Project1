@@ -10,5 +10,7 @@
 
         void Sort();
         void Processor();
+
+        void ReleaseMessage();
     }
 }

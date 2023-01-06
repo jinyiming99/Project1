@@ -1,28 +1,28 @@
 ﻿namespace Game.GameStatus
 {
-    public class GameInitStatus : GameFrameWork.IState<GameData>
+    public class GameInitStatus : GameFrameWork.IState
     {
-        public bool CanEnter(GameData data, params object[] args)
+        public bool CanEnter(params object[] args)
         {
             return true;
         }
 
-        public void Enter(GameData data, params object[] args)
+        public void Enter(params object[] args)
         {
             
         }
 
-        public void Update(GameData data)
+        public void Update()
         {
             
         }
 
-        public bool CanRelease(GameData data, params object[] args)
+        public bool CanRelease(params object[] args)
         {
             return true;
         }
 
-        public void Release(GameData data, params object[] args)
+        public void Release(params object[] args)
         {
             
         }

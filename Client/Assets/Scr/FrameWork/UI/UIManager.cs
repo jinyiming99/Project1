@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Mail;
 using System.Reflection;
 using GameFrameWork.Pool;
 using UnityEngine;
@@ -13,45 +14,56 @@ namespace GameFrameWork.UI
             internal IUIControllerInterface panel;
             internal object[] args;
         }
-        private Dictionary<int, IUIControllerInterface> m_dic = new Dictionary<int, IUIControllerInterface>();
-        private Func<int,IUIControllerInterface> m_func;
+        protected Dictionary<int, UIControllerBase> m_dic = new Dictionary<int, UIControllerBase>();
 
-        private Queue<IUIControllerInterface> m_histroy = new Queue<IUIControllerInterface>();
-        private Queue<WaitingShowNode> m_waiting = new Queue<WaitingShowNode>();
+        protected Queue<IUIControllerInterface> m_histroy = new Queue<IUIControllerInterface>();
+        protected Queue<WaitingShowNode> m_waiting = new Queue<WaitingShowNode>();
 
-        private StackPool<WaitingShowNode> _pool = new StackPool<WaitingShowNode>();
-        
+        protected StackPool<WaitingShowNode> _pool = new StackPool<WaitingShowNode>();
 
-        public void SetFunc(Func<int, IUIControllerInterface> func)
+        private Dictionary<int, string> m_resourceDic = new Dictionary<int, string>();
+
+        public void SetDic(Dictionary<int, string> dic)
         {
-            m_func = func;
+            m_resourceDic = dic;
         }
-        public void OpenUI(int @enum ,params object[] args)
+        public void OpenUI<T>(int @enum ,params object[] args) where T : UIControllerBase
         {
             if (!m_dic.TryGetValue(@enum, out var panel))
             {
-                if (m_func == null)
+                if (m_resourceDic.TryGetValue(@enum, out var name))
                 {
-                    throw new Exception();
-                    return;
-                }
+                    UIPrefabLoader loader = UIPrefabLoader.CreateLoader<T>(name, (t) =>
+                    {
+                        if (t != null)
+                        {
+                            m_dic.Add(@enum, t);
+                            t.transform.SetParent(UIRoot.root.transform);
+                            var rect = t.GetComponent<RectTransform>();
+                            rect.offsetMax = Vector2.zero;
+                            rect.offsetMin = Vector2.zero;
+                            rect.anchoredPosition = Vector2.zero;
+                            t.transform.localScale = Vector3.one;
 
-                panel = m_func.Invoke(@enum);
-                if (panel == null)
-                {
-                    throw new NullReferenceException();
-                    return;
+                            OpenUI(t, @enum, args);
+                        }
+                    });
                 }
-                m_dic.Add(@enum,panel);
+                return;
             }
 
+            OpenUI(panel, @enum, args);
+        }
+
+        private void OpenUI(UIControllerBase panel,int @enum ,params object[] args)
+        {
             switch (panel.GetPopType())
             {
                 case UIPopTypeEnum.Main:
                 {
                     foreach (var v in m_dic)
                     {
-                        if (v.Key != @enum && v.Value.GetPopType() == UIPopTypeEnum.Main && v.Value.GetActive())
+                        if (v.Key != @enum && v.Value.GetPopType() == UIPopTypeEnum.Main && v.Value.gameObject.activeInHierarchy)
                         {
                             v.Value.HidePanel();
                         }
@@ -66,7 +78,7 @@ namespace GameFrameWork.UI
                 {
                     foreach (var v in m_dic)
                     {
-                        if (v.Key != @enum && v.Value.GetPopType() == UIPopTypeEnum.Pop && v.Value.GetActive())
+                        if (v.Key != @enum && v.Value.GetPopType() == UIPopTypeEnum.Pop && v.Value.gameObject.activeInHierarchy)
                         {
                             var node = _pool.Pop();
                             if (node == null)
@@ -76,11 +88,55 @@ namespace GameFrameWork.UI
                             m_waiting.Enqueue(node);
                         }
                     }
-
                     break;
                 }
             }
+            panel.Show();
             panel.ShowPanel(args);
+        }
+
+        public bool IsShow(int index)
+        {
+            if (m_dic.TryGetValue(index, out var panel))
+            {
+                return panel.gameObject.activeInHierarchy;
+            }
+
+            return false;
+        }
+
+        public void CloseUI(IUIControllerInterface panel)
+        {
+            foreach (var v in m_dic)
+            {
+                if (v.Value == panel)
+                {
+                    CloseUI(v.Key);
+                    return;
+                }
+            }
+        }
+
+        public void DestroyUI(int @enum)
+        {
+            if (m_dic.TryGetValue(@enum, out var panel))
+            {
+                GameObject.Destroy(panel.gameObject);
+                m_dic.Remove(@enum);
+            }
+        }
+
+        public void DestroyAllUIExclude(int @enum)
+        {
+            if (m_dic.TryGetValue(@enum, out var panel))
+            {
+                foreach (var value in m_dic)
+                {
+                    GameObject.Destroy(value.Value.gameObject);
+                }
+                m_dic.Clear();
+                m_dic.Add(@enum,panel);
+            }
         }
 
         public void CloseUI(int @enum)
@@ -112,10 +168,20 @@ namespace GameFrameWork.UI
             }
         }
 
+        public void CloseAllPanel()
+        {
+            foreach (var v in m_dic)
+            {
+                v.Value.HidePanel();
+            }
+        }
+
         public void ClearHistroy()
         {
             m_histroy.Clear();
         }
+        
+        
 
         public void PopHistroy()
         {
