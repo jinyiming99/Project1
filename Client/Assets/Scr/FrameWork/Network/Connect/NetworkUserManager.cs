@@ -8,14 +8,14 @@ namespace GameFrameWork.Network
     {
         private Dictionary<long, INetworkWorker> m_userDic = new Dictionary<long, INetworkWorker>(4);
         static List<long> removeList = new List<long>();
-        public NetworkWorker CreateUser(TcpConnect connect)
+        public NetworkWorker CreateUser(IConnect connect)
         {
             NetworkWorker worker = new NetworkWorker(connect);
             m_userDic.Add(worker.GetID(), worker);
             return worker;
         }
         
-        public NetworkListener CreateListener(TcpListener l,Action<TcpConnect> a)
+        public NetworkListener CreateListener(TcpListener l,Action<IConnect> a)
         {
             NetworkListener listener = new NetworkListener(l,a);
             m_userDic.Add(listener.GetID(), listener);

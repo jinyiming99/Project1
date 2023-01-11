@@ -36,18 +36,14 @@ namespace Scr.Game.Network
             m_worker.errorCallback = OnErrorCallback;
         }
 
-        public void SendAsync(int @enum,Google.Protobuf.IMessage message)
+        public void SendAsync(short @enum,Google.Protobuf.IMessage message)
         {
             var size = message.CalculateSize();
             var array = message.ToByteArray();
-            MessageBase @base = new MessageBase();
-            @base.m_cmd = (int)MessageCommand.ProtoBuf_Message;
-            @base.m_messageID = (short)@enum;
-            @base.m_data = array;
-            @base.m_length = size;
+
             if (m_worker != null)
             {
-                m_worker.SendAsync(@base.GetData());
+                m_worker.SendMessageAsync(@enum,array,size);
             }
         }
 

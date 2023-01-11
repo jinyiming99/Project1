@@ -25,9 +25,9 @@ namespace GameFrameWork.Network.MessageBase
             var data = new DataSegment();
             int length = 0;
             data.ClearPos();
-            data.Write(m_messageID);
             data.Write(m_cmd);
             data.Write(m_ack);
+            data.Write(m_messageID);
             data.Write(m_data,m_length);
             return data;
         }
@@ -35,21 +35,45 @@ namespace GameFrameWork.Network.MessageBase
         public static bool TryGetMessage(DataSegment data,out MessageBase msg)
         {
             var off = data.Length;
-            if (data.TryReadShort(out var messageID) &&
-                data.TryReadShort(out var cmd) &&
-                data.TryReadInt(out var ack) &&
-                data.TryReadDatas(out var arr,out var length))
+            if (data.TryReadShort(out var cmd))
             {
-                msg = new MessageBase()
+                switch ((MessageCommand)cmd)
                 {
-                    m_ack = ack,
-                    m_messageID = messageID,
-                    m_cmd = cmd,
-                    m_length = length,
-                    m_data = arr,
-                };
-                return true;
+                    case MessageCommand.Ack:
+                    {
+                        if (data.TryReadInt(out var ack))
+                        {
+                            msg = new MessageBase()
+                            {
+                                m_ack = ack,
+                            };
+                            return true;
+                        }
+                        break;
+                    }
+                    case MessageCommand.ProtoBuf_Message:
+                    {
+                        if (data.TryReadInt(out var ack) &&
+                            data.TryReadShort(out var messageID) &&
+                            data.TryReadDatas(out var arr, out var length))
+                        {
+                            msg = new MessageBase()
+                            {
+                                m_ack = ack,
+                                m_messageID = messageID,
+                                m_cmd = cmd,
+                                m_length = length,
+                                m_data = arr,
+                            };
+                            return true;
+                        }
+                        break;
+                    }
+                    case MessageCommand.Heart:
+                        break;
+                }
             }
+            
 
             msg = null;
             data.Length = off;

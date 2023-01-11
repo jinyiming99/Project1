@@ -90,6 +90,16 @@ namespace GameFrameWork.Network
             m_connect.SendAsync(data.m_data,data.Length,0);
         }
 
+        public void SendMessageAsync(short @enum,byte[] datas, int length)
+        {
+            MessageBase.MessageBase data = new MessageBase.MessageBase();
+            data.m_data = datas;
+            data.m_length = length;
+            data.m_cmd = (int)MessageCommand.ProtoBuf_Message;
+            data.m_messageID = @enum;
+            SendAsync(data.GetData());
+        }
+
         void OnReveiceData(byte[] data , int length)
         {
             _dataSegment.Write(data,length);
