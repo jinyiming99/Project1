@@ -94,6 +94,12 @@ public class AnimationControl : MonoBehaviour
     {
         m_action = action;
     }
+    
+    public void RemoveListener()
+    {
+        m_action = null;
+    }
+    
     /// <summary>
     /// 销毁
     /// </summary>

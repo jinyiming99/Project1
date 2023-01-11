@@ -12,8 +12,9 @@ namespace GameFrameWork
                                             where Data: new()
     {
         protected FSM _fsm;
+        public FSM fsm => _fsm;
         protected Data _data;
-        public Data data => _data;
+        public Data gameData => _data;
         /// <summary>
         /// 初始化
         /// </summary>

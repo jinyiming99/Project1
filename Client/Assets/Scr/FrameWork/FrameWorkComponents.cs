@@ -1,6 +1,7 @@
 ﻿using GameFrameWork.Network;
 using GameFrameWork.Thread;
 using GameFrameWork.Timer;
+using GameFrameWork.UI;
 
 namespace GameFrameWork
 {
@@ -27,6 +28,9 @@ namespace GameFrameWork
 
         private NetworkManager _networkManager = new NetworkManager();
         public NetworkManager Network => _networkManager;
+
+        private UIManager _uiManager = new UIManager();
+        public UIManager UI => _uiManager;
         public void Init()
         {
             _mCoroutineWorkerComponent = GameObjectInstance.Instance.AddComponent<CoroutineWorkerComponent>();

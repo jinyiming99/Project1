@@ -45,7 +45,7 @@ namespace GameFrameWork
         {
             foreach (var v in m_dic)
             {
-                GameObject.DestroyImmediate(v.Value);
+                Destroy(v.Value.gameObject);
             }
         }
     }
