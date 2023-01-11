@@ -10,42 +10,41 @@ namespace GameFrameWork.Network
         Send_Error,
         Reveice_Error,
     }
-    public delegate void ConnectErrorCallBack(ConnectErrorStatus status,SocketError error);
-    public delegate void ReveiceDataCallBack(byte[] datas,int length);
+
     
     public class TcpConnect : IConnect
     {
         private Socket m_socket;
+        
+        public string IP { set; get; }
 
-        private string m_ip;
-
-        public string IP
-        {
-            set => m_ip = value;
-            get => m_ip;
-        }
-
-        private int m_port;
-
-        public int Port
-        {
-            get => m_port;
-            set => m_port = value;
-        }
+        public int Port { get; set; }
 
         private bool m_isConnected;
 
-        private ConnectErrorCallBack m_failedCallback;
-        private ReveiceDataCallBack m_reveiceCallback;
+        private MessageConstDefine.ConnectCallBack m_connectCallback;
+        private MessageConstDefine.ReveiceCallBack m_reveiceCallback;
+        private MessageConstDefine.CloseCallBack m_closeCallback;
+        private MessageConstDefine.ErrorCallBack m_errorCallback;
 
-        public ConnectErrorCallBack FailedCallBack
+        public MessageConstDefine.ConnectCallBack ConnectCallBack
         {
-            set => m_failedCallback = value;
+            set => m_connectCallback = value;
         }
 
-        public ReveiceDataCallBack ReveiceCallback
+        public MessageConstDefine.ReveiceCallBack ReveiceCallback
         {
             set => m_reveiceCallback = value;
+        }
+
+        public MessageConstDefine.CloseCallBack CloseCallBack
+        {
+            set => m_closeCallback = value;
+        }
+
+        public MessageConstDefine.ErrorCallBack ErrorCallBack
+        {
+            set => m_errorCallback = value;
         }
         
         private byte[] m_receiveData = new byte[1024 * 1024];
@@ -58,38 +57,88 @@ namespace GameFrameWork.Network
                 connect.m_isConnected = true;
             return connect;
         }
+
+        public static TcpConnect CreateConnect()
+        {
+            TcpConnect connect = new TcpConnect();
+            connect.m_socket = CreateSocket();
+            return connect;
+        }
+
+        private static AddressFamily CheckFamily()
+        {
+            AddressFamily af = AddressFamily.InterNetwork;
+
+            try
+            {
+                IPAddress[] address = Dns.GetHostAddresses(Dns.GetHostName());
+                if (address[0].AddressFamily == AddressFamily.InterNetworkV6)
+                    af = AddressFamily.InterNetworkV6;
+            }
+            catch (Exception e)
+            {
+
+            }
+            return af;
+        }
+        
+        private static Socket CreateSocket()
+        {
+            Socket socket = null;
+            AddressFamily af = CheckFamily();
+            try
+            {
+                socket = new Socket(af, SocketType.Stream, ProtocolType.Tcp);
+            }
+            catch
+            {
+                if (af == AddressFamily.InterNetworkV6)
+                    af = AddressFamily.InterNetwork;
+                else if (af == AddressFamily.InterNetwork)
+                    af = AddressFamily.InterNetworkV6;
+                try
+                {
+                    socket = new Socket(af, SocketType.Stream, ProtocolType.Tcp);
+                }
+                catch(Exception e)
+                {
+                    var str = e.ToString();
+                    DebugTools.DebugHelper.LogError($" create socket failed ,e ={str}");
+                    throw new NetworkException(NetworkErrorEnum.Socket_Create_Failed, str);
+                }
+            }
+            return socket;
+        }
         private TcpConnect()
         {
             
         }
 
-        public void ConnectAsync(string ip,int port,Action<bool> action)
+        public void ConnectAsync()
         {
-            m_ip = ip;
-            m_port = port;
             try
             {
                 m_socket.BeginConnect(IP, Port, (result)=>
                 {
                     m_socket.EndConnect(result);
                     if (result.IsCompleted)
-                        action?.Invoke(m_socket.Connected);
+                        m_connectCallback?.Invoke( NetworkErrorEnum.Success);
                     else
-                        action?.Invoke(false);
+                    {
+                        m_connectCallback?.Invoke(NetworkErrorEnum.Socket_Connect_Failed);
+                    }
                 }, null);
             }
             catch (Exception e)
             {
-                action?.Invoke(false);
+                m_connectCallback?.Invoke(NetworkErrorEnum.Socket_Connect_Failed);
             }
-            
         }
 
-        public void BindReveiceCallback(ReveiceDataCallBack back)
+        public void DisConnect()
         {
-            m_reveiceCallback = back;
+            Dispose();
         }
-        
 
         public long GetHashCode()
         {
@@ -116,6 +165,7 @@ namespace GameFrameWork.Network
                 m_socket.Shutdown(SocketShutdown.Both);
                 m_socket.Close();
                 m_socket = null;
+                m_closeCallback?.Invoke();
             }
 
             m_isConnected = false;
@@ -174,7 +224,7 @@ namespace GameFrameWork.Network
                         if (size == 0 || errorCode != SocketError.Success)
                         {
                             Dispose();
-                            m_failedCallback?.Invoke(ConnectErrorStatus.Reveice_Error,errorCode);
+                            m_errorCallback?.Invoke(ConnectErrorStatus.Reveice_Error,errorCode);
                         }
                         else ///读取成功,丢回给上级
                         {
@@ -187,7 +237,7 @@ namespace GameFrameWork.Network
                 
                 if (receiveErrorCode != SocketError.Success)
                 {
-                    m_failedCallback?.Invoke(ConnectErrorStatus.Reveice_Error,receiveErrorCode);
+                    m_errorCallback?.Invoke(ConnectErrorStatus.Reveice_Error,receiveErrorCode);
                     Dispose();
                 }
             }

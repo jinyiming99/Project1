@@ -10,7 +10,7 @@ namespace GameFrameWork.Network
     public class NetworkManager
     {
         private NetworkUserManager m_userManager;
-
+        internal NetworkUserManager userManager => m_userManager;
         public NetworkManager()
         {
             m_userManager = new NetworkUserManager();
@@ -53,21 +53,7 @@ namespace GameFrameWork.Network
 
         #region tcpworker
 
-        public void CreateTcpConnectAsync(string ip, int port, Action<NetworkWorker> action)
-        {
-            TcpClient.ConnectServerAsync(ip,port, (connect) =>
-            {
-                var user = m_userManager?.CreateUser(connect);
-                action?.Invoke(user);
-            });
-        }
 
-        public NetworkWorker CreateTcpConnect(string ip, int port)
-        {
-            var connect = TcpClient.ConnectServer(ip, port);
-            var user = m_userManager?.CreateUser(connect);
-            return user;
-        }
 
         public void CloseTcpConnect(NetworkWorker worker)
         {

@@ -19,16 +19,6 @@ namespace GameFrameWork.Network.MessageBase
         {
             m_ack = GetSeq();
         }
-        public void SetData(byte[] arr,int length)
-        {
-            m_data = arr;
-            m_length = length;
-        }
-
-        public void SetMessageID(short id)
-        {
-            m_messageID = id;
-        }
 
         public DataSegment GetData()
         {
@@ -38,25 +28,8 @@ namespace GameFrameWork.Network.MessageBase
             data.Write(m_messageID);
             data.Write(m_cmd);
             data.Write(m_ack);
-            data.Write(m_length);
-            data.Write(m_data,m_data.Length);
+            data.Write(m_data,m_length);
             return data;
-        }
-
-        public bool TrySetData(DataSegment data)
-        {
-            var off = data.Length;
-            if (data.TryReadShort(out m_messageID) &&
-                data.TryReadShort(out m_cmd) &&
-                data.TryReadInt(out m_ack) &&
-                data.TryReadInt(out m_length) &&
-                data.TryReadDatas(out m_data))
-            {
-                return true;
-            }
-
-            data.Length = off;
-            return false;
         }
 
         public static bool TryGetMessage(DataSegment data,out MessageBase msg)
@@ -64,13 +37,12 @@ namespace GameFrameWork.Network.MessageBase
             var off = data.Length;
             if (data.TryReadShort(out var messageID) &&
                 data.TryReadShort(out var cmd) &&
-                data.TryReadInt(out var seq) &&
-                data.TryReadInt(out var length) &&
-                data.TryReadDatas(out var arr))
+                data.TryReadInt(out var ack) &&
+                data.TryReadDatas(out var arr,out var length))
             {
                 msg = new MessageBase()
                 {
-                    m_ack = seq,
+                    m_ack = ack,
                     m_messageID = messageID,
                     m_cmd = cmd,
                     m_length = length,

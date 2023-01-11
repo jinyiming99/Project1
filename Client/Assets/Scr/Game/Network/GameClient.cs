@@ -3,6 +3,7 @@ using GameFrameWork;
 using GameFrameWork.Network;
 using GameFrameWork.Network.MessageBase;
 using Google.Protobuf;
+using TcpClient = GameFrameWork.Network.Client.TcpClient;
 
 namespace Scr.Game.Network
 {
@@ -16,7 +17,7 @@ namespace Scr.Game.Network
                 s_messageDistribute = new ProtoBufMessageDistribute("");
                 s_messageDistribute.CreateMessageDic();
             }
-            NetworkWorker worker = FrameWork.GetFrameWork().Components.Network.CreateTcpConnect(ip, port);
+            NetworkWorker worker = TcpClient.CreateTcpConnect(ip, port);
             GameClient gameClient = new GameClient(worker)
             {
                 _messageDistribute = s_messageDistribute,
@@ -29,8 +30,10 @@ namespace Scr.Game.Network
         internal GameClient(NetworkWorker worker)
         {
             m_worker = worker;
-            m_worker.OnReceiveMessageCallback = ReveiceMessage;
-            m_worker.OnDisconnectCallback = DisconnectCallback;
+            m_worker.receiveMessageCallback = ReveiceMessage;
+            m_worker.connectCallback = ConnectCallback;
+            m_worker.closeCallback = OnCloseCallback;
+            m_worker.errorCallback = OnErrorCallback;
         }
 
         public void SendAsync(int @enum,Google.Protobuf.IMessage message)
@@ -59,7 +62,17 @@ namespace Scr.Game.Network
             }
         }
 
-        public void DisconnectCallback(SocketError error)
+        public void ConnectCallback(NetworkErrorEnum status)
+        {
+            
+        }
+
+        public void OnCloseCallback()
+        {
+            
+        }
+
+        public void OnErrorCallback(ConnectErrorStatus error,SocketError errorType)
         {
             
         }

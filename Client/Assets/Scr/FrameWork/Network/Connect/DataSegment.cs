@@ -96,9 +96,9 @@ namespace GameFrameWork.Network
             if (b)
             {
                 o = (int) (m_data[m_pos + 3] |
-                               (int) (m_data[m_pos + 2] << 8) |
-                               (int) (m_data[m_pos + 1] << 16) |
-                               (int) (m_data[m_pos] << 24));
+               (int) (m_data[m_pos + 2] << 8) |
+               (int) (m_data[m_pos + 1] << 16) |
+               (int) (m_data[m_pos] << 24));
                 m_pos += 4;
             }
             else
@@ -153,11 +153,11 @@ namespace GameFrameWork.Network
             return b;
         }
         
-        public bool TryReadDatas(out byte[] data)
+        public bool TryReadDatas(out byte[] data,out int length)
         {
-            if (TryReadInt(out var l))
+            if (TryReadInt(out length))
             {
-                if (TryReadDatas(l, out data))
+                if (TryReadDatas(length, out data))
                 {
                     return true;
                 }

@@ -12,21 +12,14 @@ namespace GameFrameWork.Network
 
         private int m_id = NetworkCounter.GetCount();
 
-        private Action<SocketError> m_onDisconnectCallback = null;
+        public MessageConstDefine.ErrorCallBack errorCallback { set; private get; }
+        
+        public MessageConstDefine.ReveiceMessageBaseCallBack receiveMessageCallback { set; private get; }
 
-        private Action<MessageBase.MessageBase> m_receiveMessageCallback = null;
-
-        public Action<SocketError> OnDisconnectCallback
-        {
-            private get => m_onDisconnectCallback;
-            set => m_onDisconnectCallback = value;
-        }
-
-        public Action<MessageBase.MessageBase> OnReceiveMessageCallback
-        {
-            private get => m_receiveMessageCallback;
-            set => m_receiveMessageCallback = value;
-        }
+        public MessageConstDefine.ConnectCallBack connectCallback { set; private get; }
+        
+        public MessageConstDefine.CloseCallBack closeCallback { set; private get; }
+        
 
         private NetworkKeeper m_keeper = new NetworkKeeper();
 
@@ -35,7 +28,9 @@ namespace GameFrameWork.Network
         {
             m_connect = connect;
             m_connect.ReveiceCallback = OnReveiceData;
-            m_connect.FailedCallBack = OnConnectError;
+            m_connect.ErrorCallBack = OnErrorCallback;
+            m_connect.CloseCallBack = OnClose;
+            m_connect.ConnectCallBack = OnConnectCallBack;
         }
 
         public NetworkConnectStatusEnum CheckConnectStatus()
@@ -53,15 +48,36 @@ namespace GameFrameWork.Network
             }
         }
 
+        private void OnClose()
+        {
+            
+        }
+
+        public void StartConnect()
+        {
+            m_connect.ConnectAsync();
+        }
+
         public void Disconnect()
         {
-            m_connect.Dispose();
-            
-            m_onDisconnectCallback = null;
+            if (m_connect.IsConnected)
+            {
+                m_connect.Dispose();
+                closeCallback?.Invoke();
+            }
         }
         public void ReConnect()
         {
             
+        }
+
+        void OnConnectCallBack(NetworkErrorEnum status)
+        {
+            connectCallback?.Invoke(status);
+            if (status == NetworkErrorEnum.Success)
+            {
+                BeginReceive();
+            }
         }
 
         public void BeginReceive()
@@ -71,30 +87,20 @@ namespace GameFrameWork.Network
         
         public void SendAsync(DataSegment data)
         {
-            FrameWork.GetFrameWork().Components.ThreadWorker.Post(() =>
-            {
-                m_connect.SendAsync(data.m_data,data.Length,0);
-            });
+            m_connect.SendAsync(data.m_data,data.Length,0);
         }
-        public void SendAsync(byte[] datas,int length)
-        {
-            FrameWork.GetFrameWork().Components.ThreadWorker.Post(() =>
-            {
-                m_connect.SendAsync(datas,length,0);
-            });
-        }
-        
+
         void OnReveiceData(byte[] data , int length)
         {
             _dataSegment.Write(data,length);
 
             if (MessageBase.MessageBase.TryGetMessage(_dataSegment, out var msg))
-                m_receiveMessageCallback?.Invoke(msg);
+                receiveMessageCallback?.Invoke(msg);
         }
 
-        void OnConnectError(ConnectErrorStatus status,SocketError error)
+        void OnErrorCallback(ConnectErrorStatus status,SocketError error)
         {
-            m_onDisconnectCallback?.Invoke(error);
+            errorCallback?.Invoke(status,error);
         }
 
 

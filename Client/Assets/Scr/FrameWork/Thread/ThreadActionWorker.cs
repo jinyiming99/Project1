@@ -54,14 +54,6 @@ namespace GameFrameWork.Thread
                     }
                 }
 
-                if (m_swaqList.GetWaitingLength() > 0)
-                {
-                    foreach (var v in m_swaqList.GetWaitingData())
-                    {
-                        v?.Invoke();
-                    }
-                }
-                
                 m_swaqList.Clear();
             }
             

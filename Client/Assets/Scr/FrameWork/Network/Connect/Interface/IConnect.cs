@@ -2,9 +2,19 @@
 {
     public interface IConnect
     {
-        ConnectErrorCallBack FailedCallBack { set; }
-        ReveiceDataCallBack ReveiceCallback { set; }
+        MessageConstDefine.ConnectCallBack ConnectCallBack { set; }
+        MessageConstDefine.ReveiceCallBack ReveiceCallback { set; }
+        
+        MessageConstDefine.ErrorCallBack ErrorCallBack{ set; } 
+        MessageConstDefine.CloseCallBack CloseCallBack{ set; }
+        
+        public string IP { set; get; }
+        public int Port { set; get; }
+        
         bool IsConnected { get; }
+        void ConnectAsync();
+
+        void DisConnect();
 
         void BeginReceive();
         void SendAsync(byte[] data,int length,int offer);
