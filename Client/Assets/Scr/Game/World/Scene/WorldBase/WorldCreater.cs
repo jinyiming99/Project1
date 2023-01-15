@@ -2,14 +2,9 @@
 {
     public class WorldCreater
     {
-        public static World CreateWorldByScene()
+        public async void CreateWorld(WorldCreateData data)
         {
-            return new World();
-        }
-
-        public static World CreateWorld()
-        {
-            return new World();
+            
         }
     }
 }

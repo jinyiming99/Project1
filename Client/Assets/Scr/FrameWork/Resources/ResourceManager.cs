@@ -14,37 +14,43 @@ namespace GameFrameWork
         {
             
         }
-        public void LoadGameObject(string name,Action<GameObject> action)
+        public AsyncOperationHandle LoadGameObject(string name,Action<GameObject> action)
         {
-            Addressables.InstantiateAsync(name).Completed += (handle =>
+            var loadHandle = Addressables.InstantiateAsync(name);
+            loadHandle.Completed += (handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                     action?.Invoke(handle.Result);
                 else
                     DebugTools.DebugHelper.LogError(() =>handle.OperationException.ToString());
             });
+            return loadHandle;
         }
 
-        public void LoadResource<T>(string name, Action<T> action)
+        public AsyncOperationHandle LoadResource<T>(string name, Action<T> action)
         {
-            Addressables.LoadAssetAsync<T>(name).Completed += (handle =>
+            var loadHandle = Addressables.LoadAssetAsync<T>(name);
+            loadHandle.Completed += (handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                     action?.Invoke(handle.Result);
                 else
                     DebugTools.DebugHelper.LogError(() =>handle.OperationException.ToString());
             });
+            return loadHandle;
         }
 
-        public void LoadScene(string name,LoadSceneMode loadMode ,Action<Scene> action)
+        public AsyncOperationHandle LoadScene(string name,LoadSceneMode loadMode ,Action<Scene> action)
         {
-            Addressables.LoadSceneAsync(name,loadMode).Completed += (handle =>
+            var loadHandle = Addressables.LoadSceneAsync(name,loadMode);
+            loadHandle.Completed += (handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
                     action?.Invoke(handle.Result.Scene);
                 else
                     DebugTools.DebugHelper.LogError(() =>handle.OperationException.ToString());
             });
+            return loadHandle;
         }
 
         public void Release()

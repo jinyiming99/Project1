@@ -1,4 +1,4 @@
-﻿namespace Scr.Game.Network
+﻿namespace Game.Network
 {
     public class GameNetworkDefine
     {

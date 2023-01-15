@@ -5,7 +5,7 @@
     /// </summary>
     public interface IMessageProcessor
     {
-        int GetEnum();
+        int MessageID { get; }
         void CreateMessage(MessageBase segment);
 
         void Sort();

@@ -6,7 +6,7 @@ namespace GameFrameWork.Network.MessageBase
 {
     public class ProtoBufMessageDistribute : MessageDistribute
     {
-        private string spaceName = "";
+        private string spaceName = "Game.Network.Processor";
 
         public ProtoBufMessageDistribute(string space)
         {
@@ -21,7 +21,7 @@ namespace GameFrameWork.Network.MessageBase
                 if (type.Namespace == spaceName && !type.IsAbstract)
                 {
                     var t = Activator.CreateInstance(type) as IMessageProcessor;
-                    m_createrDic.Add(t.GetEnum(),t); 
+                    m_createrDic.Add(t.MessageID,t); 
                 }
             }
         }

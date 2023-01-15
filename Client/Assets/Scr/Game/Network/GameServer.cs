@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GameFrameWork;
 using GameFrameWork.Network;
+using GameFrameWork.Network.MessageBase;
+using Google.Protobuf;
 
-namespace Scr.Game.Network
+namespace Game.Network
 {
     public class GameServer
     {
@@ -52,6 +55,26 @@ namespace Scr.Game.Network
                 m_action?.Invoke(worker);
             }
         }
+
+        public void SendMessageToAll(int msgID, Google.Protobuf.IMessage msg)
+        {
+            if (m_workDic.Count > 0)
+            {
+                MessageBase messageBase = new MessageBase();
+                messageBase.m_cmd = (short)MessageCommand.ProtoBuf_Message;
+                messageBase.m_messageID = (short)msgID;
+                messageBase.m_data = msg.ToByteArray();
+                messageBase.m_length = messageBase.m_data.Length;
+                var data = messageBase.GetData();
+                foreach (var worker in m_workDic)
+                {
+                    
+                    worker.Value.SendAsync(data);
+                }
+            }
+        }
+        
+        
 
         public void Release()
         {

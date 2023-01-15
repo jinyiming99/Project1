@@ -4,7 +4,12 @@ namespace Game.World
 {
     public class World
     {
-        public GameScene m_scene;
-        
+        public UnityEngine.SceneManagement.Scene m_scene;
+
+        public async void LoadScene()
+        {
+            
+        }
+
     }
 }

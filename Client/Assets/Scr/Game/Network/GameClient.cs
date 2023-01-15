@@ -5,7 +5,7 @@ using GameFrameWork.Network.MessageBase;
 using Google.Protobuf;
 using TcpClient = GameFrameWork.Network.Client.TcpClient;
 
-namespace Scr.Game.Network
+namespace Game.Network
 {
     public class GameClient
     {

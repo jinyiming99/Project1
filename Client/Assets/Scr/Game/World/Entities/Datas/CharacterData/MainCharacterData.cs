@@ -1,6 +1,6 @@
 ﻿namespace Game.Characters
 {
-    public class MainCharacterData : SceneObjectData
+    public class MainCharacterData : CharacterData
     {
         public MainCharacterData()
         {

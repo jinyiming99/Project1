@@ -1,11 +1,12 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace GameFrameWork.UI
 {
-    public class UIPrefabLoader
+    public class UIPrefabLoader :ResourceLoader
     {
-        private bool m_isDel;
+
         private Action<GameObject> m_action;
 
         public static UIPrefabLoader CreateLoader<T>(string name, Action<T> action) where T : MonoBehaviour
@@ -17,24 +18,19 @@ namespace GameFrameWork.UI
 
         public void SetLoader<T>(string name, Action<T> action) where T : MonoBehaviour
         {
-            m_isDel = false;
             m_action = (obj) =>
             {
                 var t = obj.GetComponent<T>();
                 action?.Invoke(t);
             };
-            LoadResrouce(name);
+            _loadHandle = LoadResource(name);
         }
 
-        public void Del()
+        protected override AsyncOperationHandle LoadResource(string name)
         {
-            m_isDel = true;
-        }
-        private void LoadResrouce(string name)
-        {
-            FrameWork.GetFrameWork().Components.ResourceManager.LoadGameObject(name, (obj) =>
+            return FrameWork.GetFrameWork().Components.ResourceManager.LoadGameObject(name, (obj) =>
             {
-                if (m_isDel)
+                if (_isDel)
                     return;
                 m_action?.Invoke(obj);
             });

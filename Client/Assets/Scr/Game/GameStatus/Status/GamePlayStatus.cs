@@ -14,7 +14,7 @@ namespace Game.GameStatus
         {
             var data = FrameWork.GetGame<HangGame>().gameData;
             data._gamePlayData = new GamePlayData();
-            data._gamePlayData._mainCharacterData = new MainCharacterData();
+            //data._gamePlayData._mainCharacterData = new MainCharacterData();
             //SceneCreater
         }
 

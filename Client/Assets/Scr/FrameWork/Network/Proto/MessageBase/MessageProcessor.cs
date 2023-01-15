@@ -18,16 +18,14 @@ namespace GameFrameWork.Network.MessageBase
             }
         }
         protected List<MsgSturct> m_msgList;
-        protected int m_msgID;
         protected Pool.StackPool<MsgSturct> m_pool = new StackPool<MsgSturct>();
         public MessageProcessor()
         {
             m_msgList = new List<MsgSturct>();
         }
-        public int GetEnum()
-        {
-            return m_msgID;
-        }
+
+        public abstract int MessageID { get; }
+
         public void CreateMessage(MessageBase msgBase)
         {
             var t = m_pool.Pop();
