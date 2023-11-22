@@ -1,6 +1,7 @@
-﻿namespace Src.UI.Base
+﻿namespace UI
 {
-    public class CustomButton : IPressComponentBase
+    [System.Serializable]
+    public class CustomButton : Base.PressComponentBase
     {
         
     }

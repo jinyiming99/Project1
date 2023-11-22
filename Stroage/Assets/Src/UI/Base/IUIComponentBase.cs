@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Src.UI.Base
+namespace UI.Base
 {
     public abstract class IUIComponentBase : MonoBehaviour
     {

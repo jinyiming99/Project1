@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class IDropComponentBase : MonoBehaviour , IBeginDragHandler,IDragHandler,IEndDragHandler
+public class DropComponentBase : MonoBehaviour , IBeginDragHandler,IDragHandler,IEndDragHandler
 {
     protected bool _isDraging = false;
     public bool IsDraging => _isDraging;

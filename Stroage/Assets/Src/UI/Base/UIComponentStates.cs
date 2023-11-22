@@ -1,4 +1,4 @@
-﻿namespace Src.UI.Base
+﻿namespace UI.Base
 {
     public enum UIComponentStates
     {
