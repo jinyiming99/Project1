@@ -1,5 +1,6 @@
 /Stroage/Logs
-/Stroage/Logs/AssetImportWorker1.log
-/Stroage/Logs/Packages-Update.log
-/Stroage/Logs/shadercompiler-AssetImportWorker0.log
-/Stroage/Logs/shadercompiler-UnityShaderCompiler.exe0.log
+/Stroage/obj
+/Stroage/Temp
+/Stroage/UserSettings
+/Stroage/Library
+
