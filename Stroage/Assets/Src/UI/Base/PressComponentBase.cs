@@ -1,4 +1,5 @@
 ﻿using System;
+using NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -6,25 +7,21 @@ using UnityEngine.UI;
 namespace UI.Base
 {
     [System.Serializable]
-    public class PressComponentBase : IUIComponentBase , IPointerDownHandler,IPointerUpHandler, IPointerEnterHandler,IPointerExitHandler,IPointerMoveHandler
+    public abstract class PressComponentBase : IUIComponentBase , IPointerDownHandler,IPointerUpHandler, IPointerEnterHandler,IPointerExitHandler,IPointerMoveHandler
     {
-        protected Action _clickAction;
-        public Action ClickAction
-        {
-            get { return _clickAction; }
-            set { _clickAction = value; }
-        }
-        
+       
         protected bool _isPressing = false;
         protected bool _isPointerEnter = false;
-
-        [SerializeField]
+        [Header("是否显示行为组件")]
+        public bool _isShowExpression = false;
+        [ShowIf("_isShowExpression")]
         public UIExpressionComponent _expressionComponent;
         
 
         public virtual void OnPointerEnter(PointerEventData eventData)
         {
             _isPointerEnter = true;
+            
             if (!_isPressing)
                 SetState(UIComponentStates.hightLight,eventData);
         }
@@ -43,22 +40,44 @@ namespace UI.Base
 
         protected override void SetState(UIComponentStates state, PointerEventData eventData = null)
         {
+            if (!_isWorking) return;
+            base.SetState(state,eventData);
             _expressionComponent.OnStateChange(state);
         }
 
         public virtual void OnPointerDown(PointerEventData eventData)
         {
             _isPressing = true;
+            SetState(UIComponentStates.press);
         }
 
         public virtual void OnPointerUp(PointerEventData eventData)
         {
-            if (!_isPointerEnter)
-                return;
-            if (_isPressing)
-                _clickAction?.Invoke();
-            SetState(UIComponentStates.press);
+            if (!_isWorking) return;
+            if (_isPointerEnter)
+                OnClick();
+
             _isPressing = false;
+            SetState(_isPointerEnter? UIComponentStates.hightLight:UIComponentStates.normal,eventData);
         }
+
+        public override bool IsWorking
+        {
+            set
+            {
+                if (!value)
+                {
+                    SetState(UIComponentStates.disable);
+                    _isWorking = value;
+                }
+                else
+                {
+                    _isWorking = value;
+                    SetState(_isPointerEnter? UIComponentStates.hightLight:UIComponentStates.normal);
+                }
+            }
+        }
+
+        protected abstract void OnClick();
     }
 }
