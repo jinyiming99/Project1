@@ -15,10 +15,10 @@ namespace UI.Base
         }
         protected virtual void OnDisable()
         {
-            SetState(UIComponentStates.disable);
+            //SetState(UIComponentStates.disable);
         }
 
-        protected void OnEnable()
+        protected virtual void OnEnable()
         {
             SetState(UIComponentStates.normal);
         }

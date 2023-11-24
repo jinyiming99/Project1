@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ namespace UI.Base
     [System.Serializable]
     public abstract class CodeExpressionBase<T> :IExpressionComponent
     {
+        protected Tween _tween;
         public float duration;
         public Graphic graphic;
         public T normalValue;
@@ -31,12 +33,20 @@ namespace UI.Base
                     return hightLightValue;
                 case UIComponentStates.disable:
                     return disableValue;
+                case UIComponentStates.selected:
+                    return selectedValue;
             }
 
             return default(T);
         }
 
         public abstract void Do(UIComponentStates states);
+
+        public virtual void Release()
+        {
+            graphic.DOKill(true);
+
+        }
     }
     [System.Serializable]
     public class ScaleAnimation : CodeExpressionBase<Vector3>
@@ -53,7 +63,12 @@ namespace UI.Base
         public override void Do(UIComponentStates states)
         {
             if (graphic != null)
-                graphic.transform.DOScale(GetValue(states), duration);
+                _tween = graphic.transform.DOScale(GetValue(states), duration).SetEase(Ease.Linear);
+        }
+
+        public override void Release()
+        {
+            graphic.transform.DOKill(true);
         }
     }
     [System.Serializable]
@@ -71,7 +86,11 @@ namespace UI.Base
         public override void Do(UIComponentStates states)
         {
             if (graphic != null)
-                graphic.DOColor(GetValue(states), duration).SetEase(Ease.Linear);
+                _tween = graphic.DOColor(GetValue(states), duration).SetEase(Ease.Linear);
+        }
+        public override void Release()
+        {
+            graphic.DOKill(true);
         }
     }
     [System.Serializable]
@@ -89,19 +108,45 @@ namespace UI.Base
         public override void Do(UIComponentStates states)
         {
             if (graphic != null)
-                graphic.transform.DOLocalMove(GetValue(states), duration);
+                _tween = graphic.transform.DOLocalMove(GetValue(states), duration).SetEase(Ease.Linear);
+        }
+        public override void Release()
+        {
+            graphic.transform.DOKill(true);
         }
     }
-    [System.Serializable]
-    public class UIExpressionComponent
-    {
 
+    [System.Serializable]
+    public class AnimationScriptableObject : ScriptableObject
+    {
         public ScaleAnimation[] _scaleAnimations;
 
         public ColorAnimation[] _colorAnimations;
 
         public OffsetAnimation[] _offsetAnimations;
-        
+    }
+    [System.Serializable]
+    public class UIExpressionComponent
+    {
+        public ScaleAnimation[] _scaleAnimations;
+        public ColorAnimation[] _colorAnimations;
+        public OffsetAnimation[] _offsetAnimations;
+
+        public void Release()
+        {
+            foreach (var scaleAnimation in _scaleAnimations)
+            {
+                scaleAnimation.Release();
+            }
+            foreach (var colorAnimation in _colorAnimations)
+            {
+                colorAnimation.Release();
+            }
+            foreach (var offsetAnimation in _offsetAnimations)
+            {
+                offsetAnimation.Release();
+            }
+        }
         public void OnStateChange(UIComponentStates state)
         {
             DoExpression(_scaleAnimations, state);

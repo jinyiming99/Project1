@@ -16,21 +16,44 @@ namespace UI.Base
         public bool _isShowExpression = false;
         [ShowIf("_isShowExpression")]
         public UIExpressionComponent _expressionComponent;
+
+        protected virtual bool IsSelected => false;
         
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            _expressionComponent?.Release();
+            _isPressing = false;
+            _isPointerEnter = false;
+        }
+        
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            SetState(UIComponentStates.normal);
+            
+            _isPressing = false;
+            _isPointerEnter = false;
+        }
+
+        private void OnDestroy()
+        {
+            _expressionComponent?.Release();
+        }
 
         public virtual void OnPointerEnter(PointerEventData eventData)
         {
             _isPointerEnter = true;
             
             if (!_isPressing)
-                SetState(UIComponentStates.hightLight,eventData);
+                SetState(IsSelected?UIComponentStates.selected: UIComponentStates.hightLight,eventData);
         }
 
         public virtual void OnPointerExit(PointerEventData eventData)
         {
             _isPointerEnter = false;
             if (!_isPressing)
-                SetState(UIComponentStates.normal,eventData);
+                SetState(IsSelected?UIComponentStates.selected:UIComponentStates.normal,eventData);
         }
 
         public virtual void OnPointerMove(PointerEventData eventData)
@@ -48,17 +71,16 @@ namespace UI.Base
         public virtual void OnPointerDown(PointerEventData eventData)
         {
             _isPressing = true;
-            SetState(UIComponentStates.press);
+            SetState(IsSelected?UIComponentStates.selected:UIComponentStates.press);
         }
 
         public virtual void OnPointerUp(PointerEventData eventData)
         {
             if (!_isWorking) return;
+            _isPressing = false;
+            SetState(IsSelected?UIComponentStates.selected:_isPointerEnter? UIComponentStates.hightLight:UIComponentStates.normal,eventData);
             if (_isPointerEnter)
                 OnClick();
-
-            _isPressing = false;
-            SetState(_isPointerEnter? UIComponentStates.hightLight:UIComponentStates.normal,eventData);
         }
 
         public override bool IsWorking
@@ -73,7 +95,7 @@ namespace UI.Base
                 else
                 {
                     _isWorking = value;
-                    SetState(_isPointerEnter? UIComponentStates.hightLight:UIComponentStates.normal);
+                    SetState(IsSelected?UIComponentStates.selected:_isPointerEnter? UIComponentStates.hightLight:UIComponentStates.normal);
                 }
             }
         }
