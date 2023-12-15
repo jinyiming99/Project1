@@ -9,20 +9,27 @@ namespace UI.Base
     [System.Serializable]
     public abstract class PressComponentBase : IUIComponentBase , IPointerDownHandler,IPointerUpHandler, IPointerEnterHandler,IPointerExitHandler,IPointerMoveHandler
     {
-       
         protected bool _isPressing = false;
         protected bool _isPointerEnter = false;
-        [Header("是否显示行为组件")]
-        public bool _isShowExpression = false;
-        [ShowIf("_isShowExpression")]
-        public UIExpressionComponent _expressionComponent;
-
+        protected ICustomComponentStateChange _stateChangeInterface;
         protected virtual bool IsSelected => false;
-        
+
+        protected virtual void Awake()
+        {
+            var components = GetComponents<MonoBehaviour>();
+            foreach (var component in components)
+            {
+                if (component is ICustomComponentStateChange)
+                {
+                    _stateChangeInterface = component as ICustomComponentStateChange;
+                    break;
+                }
+            }
+        }
+
         protected override void OnDisable()
         {
             base.OnDisable();
-            _expressionComponent?.Release();
             _isPressing = false;
             _isPointerEnter = false;
         }
@@ -34,11 +41,6 @@ namespace UI.Base
             
             _isPressing = false;
             _isPointerEnter = false;
-        }
-
-        private void OnDestroy()
-        {
-            _expressionComponent?.Release();
         }
 
         public virtual void OnPointerEnter(PointerEventData eventData)
@@ -65,7 +67,7 @@ namespace UI.Base
         {
             if (!_isWorking) return;
             base.SetState(state,eventData);
-            _expressionComponent.OnStateChange(state);
+            _stateChangeInterface?.OnStateChange(state);
         }
 
         public virtual void OnPointerDown(PointerEventData eventData)

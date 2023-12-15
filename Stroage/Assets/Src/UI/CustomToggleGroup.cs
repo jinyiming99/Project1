@@ -10,9 +10,11 @@ namespace UI
         private List<CustomToggle> _toggles = new List<CustomToggle>();
         [SerializeField]
         private bool _isMuliSelect = false;
+
+        private bool _isNeedUpdate = false;
         public bool IsMuliSelect
         {
-            get { return _isMuliSelect; }
+            get { return _isMuliSelect; }   
             set { _isMuliSelect = value; }
         }
         
@@ -20,13 +22,21 @@ namespace UI
         {
             if (toggle == null)
                 return;
-            _toggles.Add(toggle);
+            if (!_toggles.Contains(toggle))
+            {
+                _toggles.Add(toggle);
+                _isNeedUpdate = true;
+            }
         }
         internal void UnRegisterToggle(CustomToggle toggle)
         {
             if (toggle == null)
                 return;
-            _toggles.Remove(toggle);
+            if (_toggles.Contains(toggle))
+            {
+                _toggles.Remove(toggle);
+                _isNeedUpdate = true;
+            }
         }
         
         internal void SetToggle(CustomToggle toggle)
@@ -44,13 +54,19 @@ namespace UI
         private void Awake()
         {
             var toggles = GetComponentsInChildren<CustomToggle>();
-            _toggles = toggles.ToList();
+            _toggles = toggles.Where(toggle =>  toggle.gameObject.activeSelf).ToList();
             CheckToggle();
         }
 
         private void OnEnable()
         {
             CheckToggle();
+        }
+
+        private void Update()
+        {
+            if (_isNeedUpdate)
+                CheckToggle();
         }
 
         private void CheckToggle()

@@ -6,15 +6,13 @@ using UnityEngine;
 
 namespace UI
 {
-    public class CustomToggle  : Base.PressComponentBase
+    public class CustomToggle  : Base.PressComponentBase ,ICustomLoopComponent
     {
-        [ReorderableList]
-        public GameObject[] _onShowGameObjects; 
-        [ReorderableList]
-        public GameObject[] _offShowGameObjects;
         public CustomToggleGroup Group;
         [SerializeField]
-        protected bool _isOn;
+        protected bool _isOn = false;
+        
+        ICustomComponentStateChange _stateChange;
         
         private Action<bool> _onValueChanged;
         public Action<bool> OnValueChanged
@@ -40,18 +38,16 @@ namespace UI
 
         private void SetValue(bool isOn)
         {
-            foreach (var obj in _onShowGameObjects)
-                obj.SetActive(isOn);
-            foreach (var obj in _offShowGameObjects)
-                obj.SetActive(!isOn);
+
         }
         
         
 
         #region MonoBehavior Function
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             //RegisterToggle();
             if (Group.IsMuliSelect)
             {
@@ -61,12 +57,12 @@ namespace UI
 
         private void OnEnable()
         {
-            //RegisterToggle();
+            RegisterToggle();
         }
         
         private void OnDisable()
         {
-            //UnRegisterToggle();
+            UnRegisterToggle();
         }
         
         private void OnDestroy()
@@ -113,6 +109,17 @@ namespace UI
                 IsOn = true;
                 Group.SetToggle(this);
             }
+        }
+
+        private int _index = 0;
+        public int GetIndex()
+        {
+            return _index;
+        }
+
+        public void SetIndex(int index)
+        {
+            _index = index;
         }
     }
 }

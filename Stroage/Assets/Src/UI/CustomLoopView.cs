@@ -17,6 +17,7 @@ namespace UI
             public int Index;
             public Vector2 Pos;
             public bool IsUsed;
+            public bool IsOn;
             public GameObject Item;
             //public 
             public Action<GameObject> action;
@@ -100,6 +101,9 @@ namespace UI
                     if (i < startIndex || i >= endIndex)
                     {
                         _nodeDatas[i].IsUsed = false;
+                        var toggle = _nodeDatas[i].Item.GetComponent<CustomToggle>();
+                        if (toggle != null)
+                            _nodeDatas[i].IsOn = toggle.IsOn;
                         ReleaseGameObject(_nodeDatas[i].Item);
                         _nodeDatas[i].Item = null;
                     }
@@ -116,6 +120,11 @@ namespace UI
                         _nodeDatas[i].Item.transform.localPosition = _nodeDatas[i].Pos + rect.pivot * new Vector2(_itemWidth,-_itemHeight); 
                         _nodeDatas[i].Item.transform.localScale = Vector3.one;
                         _nodeDatas[i].Item.transform.localRotation = Quaternion.identity;
+                        var toggle = _nodeDatas[i].Item.GetComponent<CustomToggle>();
+                        if (toggle != null)
+                            toggle.IsOn = _nodeDatas[i].IsOn;
+                        var customLoop = _nodeDatas[i].Item.GetComponent<ICustomLoopComponent>();
+                        customLoop.SetIndex(i);
                         var data = _nodeDatas[i].Item;
                         _nodeDatas[i].action?.Invoke(data);
                     }
@@ -155,6 +164,7 @@ namespace UI
                     Index = i,
                     Pos = _container.GetPos(i) + new Vector2(_edge.xMin, -_edge.yMin),
                     IsUsed = false,
+                    IsOn = false,
                 };
                 Profiler.EndSample();
                 Profiler.BeginSample("action");

@@ -13,13 +13,13 @@ namespace UI.Base
     public abstract class CodeExpressionBase<T> :IExpressionComponent
     {
         protected Tween _tween;
-        public float duration;
+        public float duration = 0.15f;
         public Graphic graphic;
-        public T normalValue;
-        public T hightLightValue;
-        public T pressValue;
-        public T disableValue;
-        public T selectedValue;
+        public T normalValue =default(T);
+        public T hightLightValue=default(T);
+        public T pressValue=default(T);
+        public T disableValue=default(T);
+        public T selectedValue=default(T);
 
         protected T GetValue(UIComponentStates states)
         {
@@ -115,18 +115,8 @@ namespace UI.Base
             graphic.transform.DOKill(true);
         }
     }
-
     [System.Serializable]
-    public class AnimationScriptableObject : ScriptableObject
-    {
-        public ScaleAnimation[] _scaleAnimations;
-
-        public ColorAnimation[] _colorAnimations;
-
-        public OffsetAnimation[] _offsetAnimations;
-    }
-    [System.Serializable]
-    public class UIExpressionComponent
+    public class UIExpressionComponent : MonoBehaviour , ICustomComponentStateChange
     {
         public ScaleAnimation[] _scaleAnimations;
         public ColorAnimation[] _colorAnimations;
