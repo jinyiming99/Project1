@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace UI
 {
-    [RequireComponent(typeof(GameObjectPool))]
+    [RequireComponent(typeof(ScrollRect))]
     public class CustomLoopView : DropComponentBase
     {
         private class NodeData
@@ -22,17 +22,8 @@ namespace UI
             public Action<GameObject> action;
         }
         
-        private enum Direction
-        {
-            UpToDown,
-            DownToUp,
-            LeftToRight,
-            RightToLeft,
-        }
-
-        
-        [SerializeField] private ScrollRect _scrollRect;
-        [SerializeField] private RectTransform _content;
+        private ScrollRect _scrollRect;
+        private RectTransform _content;
         [Header("宽间隔")]
         [SerializeField]
         private float _widthSpacing = 10;
@@ -52,10 +43,6 @@ namespace UI
         [Header("边缘")]
         [SerializeField]
         private Rect _edge = new Rect(0,0,0,0);
-        
-        [Header("排列方向")]
-        [SerializeField]
-        private Direction _direction = Direction.LeftToRight;
         [Header("单列数量")]
         [SerializeField]
         [Min(1)]
@@ -65,7 +52,7 @@ namespace UI
         [SerializeField]
         private GameObject _item;
         
-        private GameObjectPool _pool;
+        private GameObjectPool _pool = new GameObjectPool();
 
         private Action<int, int> _action;
         
@@ -74,37 +61,37 @@ namespace UI
         private PositionContainer _container ;
         private void Awake()
         {
-            Action a = () =>
-            {
-                int i = 0;
-                i = 1;
-            };
             _scrollRect = GetComponent<ScrollRect>();
             _scrollRect.onValueChanged.AddListener((v) =>
             {
                 Refresh();
             });
-            _pool = GetComponent<GameObjectPool>();
             _container = new PositionContainer((int)_itemWidth,(int)_itemHeight,(int)_widthSpacing,(int)_hightSpacing,_column);
             if (_content != null)
                 _content.pivot = new Vector2(0,1);
             _item.gameObject.SetActive(false);
+            _content = _scrollRect.content;
+            _content.anchorMin = new Vector2(0,1);
+            _content.anchorMax = new Vector2(0,1);
+            _content.pivot = new Vector2(0,1);
+            
         }
         
 
         private void Refresh()
         {
             int startIndex = 0;
+            
             if (_scrollRect.vertical)
                 startIndex = Mathf.FloorToInt((_content.anchoredPosition.y - _edge.yMin) / (_itemHeight + _hightSpacing)) * _column;
             else
-                startIndex = Mathf.FloorToInt((_content.anchoredPosition.x - _edge.xMin) / (_itemWidth + _widthSpacing)) * _column;
+                startIndex = Mathf.FloorToInt((-_content.anchoredPosition.x - _edge.xMin) / (_itemWidth + _widthSpacing)) * _column;
             int endIndex = 0;
             RectTransform rectTransform = _scrollRect.transform as RectTransform;
             if (_scrollRect.vertical)
                 endIndex = Mathf.CeilToInt((_content.anchoredPosition.y + rectTransform.sizeDelta.y)/ (_itemHeight + _hightSpacing)) * _column;
             else
-                endIndex = Mathf.CeilToInt((_content.anchoredPosition.x + rectTransform.sizeDelta.x)/ (_itemWidth + _widthSpacing)) * _column;
+                endIndex = Mathf.CeilToInt((-_content.anchoredPosition.x + rectTransform.sizeDelta.x)/ (_itemWidth + _widthSpacing)) * _column;
             
             for (int i = 0 ; i < _nodeDatas.Count; ++i)
             {
@@ -113,7 +100,7 @@ namespace UI
                     if (i < startIndex || i >= endIndex)
                     {
                         _nodeDatas[i].IsUsed = false;
-                        _pool.Push(_nodeDatas[i].Item);
+                        ReleaseGameObject(_nodeDatas[i].Item);
                         _nodeDatas[i].Item = null;
                     }
                 }
@@ -122,12 +109,7 @@ namespace UI
                     if (i >= startIndex && i < endIndex)
                     {
                         _nodeDatas[i].IsUsed = true;
-                        var item = _pool.Pop();
-                        if (item == null)
-                        {
-                            item = GameObject.Instantiate(_item);
-                            item.SetActive(true);
-                        }
+                        var item = GetGameObject();
                         var rect = item.transform as RectTransform;
                         _nodeDatas[i].Item = item;
                         _nodeDatas[i].Item.transform.SetParent(_content);
@@ -140,12 +122,31 @@ namespace UI
                 }
             }
         }
+        
+        private GameObject GetGameObject()
+        {
+            var go = _pool.Pop();
+            if (go == null)
+            {
+                go = GameObject.Instantiate(_item);
+                go.SetActive(true);
+            }
+            return go;
+        }
+        
+        private void ReleaseGameObject(GameObject go)
+        {
+            _pool.Push(go);
+        }
 
         public void SetData<T>(List<T> list)
         {
             Profiler.BeginSample("setdata");
-            _container.Calculate(list.Count,_direction == Direction.LeftToRight);
-            _content.sizeDelta = new Vector2(_container.ContainerWidth + _edge.xMin + _edge.xMax,_container.ContainerHight+ _edge.yMin + _edge.yMax);
+            
+            _container.Calculate(list.Count,!_scrollRect.horizontal);
+            var size = new Vector2(_container.ContainerWidth + _edge.xMin + _edge.xMax,_container.ContainerHight+ _edge.yMin + _edge.yMax);
+            var rect = _scrollRect.transform as RectTransform;
+            _content.sizeDelta = new Vector2(Mathf.Max(size.x, rect.sizeDelta.x), Mathf.Max(size.y, rect.sizeDelta.y));
             for (int i = 0; i < list.Count; ++i)
             {
                 Profiler.BeginSample("new");
@@ -159,7 +160,8 @@ namespace UI
                 Profiler.BeginSample("action");
                 node.action = (go) =>
                 {
-
+                    var com = go.GetComponent<ICustomLoopNode<T>>();
+                    com.SetData(list[node.Index]);
                 };
                 Profiler.EndSample();
                 _nodeDatas.Add(node);

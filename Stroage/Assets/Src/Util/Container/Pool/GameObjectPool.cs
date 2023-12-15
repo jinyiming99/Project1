@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UI.Base
 {
-    public class GameObjectPool : MonoBehaviour
+    public class GameObjectPool
     {
         public Stack<GameObject> m_Pool = new Stack<GameObject>();
         
@@ -33,7 +33,7 @@ namespace UI.Base
             for (int i = 0; i < count; i++)
             {
                 var t = m_Pool.Pop();
-                Destroy(t.gameObject);
+                GameObject.Destroy(t.gameObject);
             }
         }
 
