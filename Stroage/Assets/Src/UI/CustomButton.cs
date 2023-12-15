@@ -13,7 +13,6 @@ namespace UI
         }
         protected override void OnClick()
         {
-        
             ClickAction?.Invoke();
         }
     }

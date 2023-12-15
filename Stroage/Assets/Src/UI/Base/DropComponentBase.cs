@@ -29,7 +29,6 @@ public class DropComponentBase : MonoBehaviour , IBeginDragHandler,IDragHandler,
     protected Vector2 GetPointerDragVector2(Vector2 position)
     {
         Vector2 vector2 = position - _pivot;
-        _pivot = position;
         return vector2;
     }
 }
