@@ -75,7 +75,13 @@ namespace UI
             _content.anchorMin = new Vector2(0,1);
             _content.anchorMax = new Vector2(0,1);
             _content.pivot = new Vector2(0,1);
-            
+            var toggle = _item.GetComponent<CustomToggle>();
+            if (toggle != null)
+            {
+                var dropComponentBase = _item.AddComponent<DropComponentBase>();
+                toggle.SetDropComponent(dropComponentBase);
+                dropComponentBase.ScrollRect = _scrollRect;
+            }
         }
         
 

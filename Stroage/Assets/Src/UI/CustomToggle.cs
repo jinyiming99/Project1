@@ -11,6 +11,8 @@ namespace UI
         public CustomToggleGroup Group;
         [SerializeField]
         protected bool _isOn = false;
+        [SerializeField]
+        private DropComponentBase _dropComponent;
         
         ICustomComponentStateChange _stateChange;
         
@@ -34,6 +36,11 @@ namespace UI
                     _onValueChanged?.Invoke(_isOn);
                 }
             }
+        }
+        
+        public void SetDropComponent(DropComponentBase drop)
+        {
+            _dropComponent = drop;
         }
 
         private void SetValue(bool isOn)
@@ -105,6 +112,8 @@ namespace UI
             else
             {
                 if (IsOn)
+                    return;
+                if (_dropComponent != null && _dropComponent.IsDroging)
                     return;
                 IsOn = true;
                 Group.SetToggle(this);
