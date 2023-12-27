@@ -63,7 +63,7 @@ namespace UI.Base
             
         }
 
-        protected override void SetState(UIComponentStates state, PointerEventData eventData = null)
+        public override void SetState(UIComponentStates state, PointerEventData eventData = null)
         {
             if (!_isWorking) return;
             base.SetState(state,eventData);

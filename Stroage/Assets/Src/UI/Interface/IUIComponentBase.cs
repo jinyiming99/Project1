@@ -24,7 +24,7 @@ namespace UI.Base
         }
 
 
-        protected virtual void SetState(UIComponentStates state , PointerEventData eventData = null)
+        public virtual void SetState(UIComponentStates state , PointerEventData eventData = null)
         {
             if (state == _state)
                 return;

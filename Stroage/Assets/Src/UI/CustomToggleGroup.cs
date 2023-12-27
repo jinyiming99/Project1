@@ -66,7 +66,10 @@ namespace UI
         private void Update()
         {
             if (_isNeedUpdate)
+            {
                 CheckToggle();
+                _isNeedUpdate = false;
+            }
         }
 
         private void CheckToggle()

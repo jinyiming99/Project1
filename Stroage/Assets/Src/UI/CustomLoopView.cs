@@ -6,21 +6,48 @@ using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Util.Container.Pool;
 
 namespace UI
 {
     [RequireComponent(typeof(ScrollRect))]
     public class CustomLoopView : DropComponentBase
     {
+        private class ComponentData
+        {
+            public GameObject gameObject;
+            public PressComponentBase _PressComponentBase;
+            public CustomToggle _CustomToggle;
+            public CustomButton _CustomButton;
+            public ICustomLoopComponent _CustomLoopComponent;
+        }
         private class NodeData
         {
             public int Index;
             public Vector2 Pos;
             public bool IsUsed;
             public bool IsOn;
-            public GameObject Item;
+            public ComponentData Item;
             //public 
             public Action<GameObject> action;
+
+            public void SaveData()
+            {
+                IsUsed = false;
+                if (Item._CustomToggle != null)
+                    IsOn = Item._CustomToggle.IsOn;
+                Item = null;
+            }
+
+            public void LoadData(ComponentData item)
+            {
+                IsUsed = true;
+                Item = item;
+                if (Item._CustomToggle != null)
+                    Item._CustomToggle.IsOn = IsOn;
+                Item._CustomLoopComponent?.SetIndex(Index);
+                action?.Invoke(Item.gameObject);
+            }
         }
         
         private ScrollRect _scrollRect;
@@ -54,12 +81,16 @@ namespace UI
         private GameObject _item;
         
         private GameObjectPool _pool = new GameObjectPool();
+        private StackPool<ComponentData> _stackPool = new StackPool<ComponentData>();
 
         private Action<int, int> _action;
         
         private List<NodeData> _nodeDatas = new List<NodeData>();
         
         private PositionContainer _container ;
+
+        private int _startIndex = 0;
+        private int _endIndex = 0;
         private void Awake()
         {
             _scrollRect = GetComponent<ScrollRect>();
@@ -99,59 +130,54 @@ namespace UI
                 endIndex = Mathf.CeilToInt((_content.anchoredPosition.y + rectTransform.sizeDelta.y)/ (_itemHeight + _hightSpacing)) * _column;
             else
                 endIndex = Mathf.CeilToInt((-_content.anchoredPosition.x + rectTransform.sizeDelta.x)/ (_itemWidth + _widthSpacing)) * _column;
-            
+            if (_startIndex == startIndex && _endIndex == endIndex)
+                return;
             for (int i = 0 ; i < _nodeDatas.Count; ++i)
             {
-                if (_nodeDatas[i].IsUsed)
+                var nodeData = _nodeDatas[i];
+                if (nodeData.IsUsed)
                 {
                     if (i < startIndex || i >= endIndex)
                     {
-                        _nodeDatas[i].IsUsed = false;
-                        var toggle = _nodeDatas[i].Item.GetComponent<CustomToggle>();
-                        if (toggle != null)
-                            _nodeDatas[i].IsOn = toggle.IsOn;
-                        ReleaseGameObject(_nodeDatas[i].Item);
-                        _nodeDatas[i].Item = null;
+                        ReleaseGameObject(nodeData.Item);
+                        nodeData.SaveData();
                     }
                 }
                 else
                 {
                     if (i >= startIndex && i < endIndex)
                     {
-                        _nodeDatas[i].IsUsed = true;
                         var item = GetGameObject();
-                        var rect = item.transform as RectTransform;
-                        _nodeDatas[i].Item = item;
-                        _nodeDatas[i].Item.transform.SetParent(_content);
-                        _nodeDatas[i].Item.transform.localPosition = _nodeDatas[i].Pos + rect.pivot * new Vector2(_itemWidth,-_itemHeight); 
-                        _nodeDatas[i].Item.transform.localScale = Vector3.one;
-                        _nodeDatas[i].Item.transform.localRotation = Quaternion.identity;
-                        var toggle = _nodeDatas[i].Item.GetComponent<CustomToggle>();
-                        if (toggle != null)
-                            toggle.IsOn = _nodeDatas[i].IsOn;
-                        var customLoop = _nodeDatas[i].Item.GetComponent<ICustomLoopComponent>();
-                        customLoop.SetIndex(i);
-                        var data = _nodeDatas[i].Item;
-                        _nodeDatas[i].action?.Invoke(data);
+                        var rect = item.gameObject.transform as RectTransform;
+                        item.gameObject.transform.localPosition = _nodeDatas[i].Pos + rect.pivot * new Vector2(_itemWidth,-_itemHeight); 
+                        item.gameObject.transform.localScale = Vector3.one;
+                        item.gameObject.transform.localRotation = Quaternion.identity;
+                        nodeData.LoadData(item);
                     }
                 }
             }
         }
         
-        private GameObject GetGameObject()
+        private ComponentData GetGameObject()
         {
-            var go = _pool.Pop();
+            var go = _stackPool.Pop();
             if (go == null)
             {
-                go = GameObject.Instantiate(_item);
-                go.SetActive(true);
+                go = new ComponentData();
+                go.gameObject = GameObject.Instantiate(_item);
+                go._PressComponentBase = go.gameObject.GetComponent<PressComponentBase>();
+                go._CustomToggle = go.gameObject.GetComponent<CustomToggle>();
+                go._CustomButton = go.gameObject.GetComponent<CustomButton>();
+                go._CustomLoopComponent = go.gameObject.GetComponent<ICustomLoopComponent>();
+                go.gameObject.transform.SetParent(_content);
+                go.gameObject.SetActive(true);
             }
             return go;
         }
         
-        private void ReleaseGameObject(GameObject go)
+        private void ReleaseGameObject(ComponentData go)
         {
-            _pool.Push(go);
+            _stackPool.Push(go);
         }
 
         public void SetData<T>(List<T> list)

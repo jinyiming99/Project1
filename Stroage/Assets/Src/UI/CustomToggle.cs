@@ -34,6 +34,8 @@ namespace UI
                 {
                     SetToggleState(value);
                     _onValueChanged?.Invoke(_isOn);
+                    if (_isOn)
+                        Group.SetToggle(this);
                 }
             }
         }
@@ -116,7 +118,6 @@ namespace UI
                 if (_dropComponent != null && _dropComponent.IsDroging)
                     return;
                 IsOn = true;
-                Group.SetToggle(this);
             }
         }
 
