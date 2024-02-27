@@ -6,21 +6,22 @@ public class CalculateLevelDefine
 {
     public static int[] OperatorLevel = new int[]
     {
-      -1,  //None
-      5,   //Add
-      5,   //Sub
-      4,
-      4,
-      4,
-      12,
-      13,
-      3,
-      8,
-      8,
-      4,
-      4,
-      4,
-      4,
+        -1,  //None
+        5,   //Add
+        5,   //Sub
+        4,
+        4,
+        4,
+        12,
+        13,
+        3,
+        8,
+        8,
+        4,
+        4,
+        4,
+        4,
+        4
     };
     // {
     //     {(int)OperatorEnum.Add,5},
