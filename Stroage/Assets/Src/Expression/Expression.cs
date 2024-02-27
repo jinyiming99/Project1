@@ -79,7 +79,7 @@ namespace Expression
                     {
                         var child = ParseExpression(expression, i + 1, end);
                         offset = i;
-                        i = child.endIndex;
+                        i = child.endIndex + 1;
                         node._CalculateNodes.Add(child);
                     }
                 }
@@ -224,6 +224,11 @@ namespace Expression
                 {
                     node.endIndex =index +1;
                     node._enum = OperatorEnum.LessEqual;
+                }
+                else if (c2 == '>')
+                {
+                    node.endIndex =index +1;
+                    node._enum = OperatorEnum.LessOrGreater;
                 }
                 else
                 {

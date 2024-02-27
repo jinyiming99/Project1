@@ -274,5 +274,21 @@ namespace Expression
                 return new ValueNode(false);
             }
         }
+
+        public ValueNode LessOrGreater(ValueNode right)
+        {
+            if (this._type == ValueType.INT && right._type == ValueType.INT)
+            {
+                return new ValueNode(this._intValue < right._intValue || this._intValue > right._intValue);
+            }
+            else if (this._type == ValueType.FLOAT && right._type == ValueType.FLOAT)
+            {
+                return new ValueNode(this._floatValue < right._floatValue || this._floatValue > right._floatValue);
+            }
+            else
+            {
+                return new ValueNode(false);
+            }
+        }
     }
 }

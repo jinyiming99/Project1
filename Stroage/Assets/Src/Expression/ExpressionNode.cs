@@ -65,7 +65,7 @@ namespace Expression
                 if (operatorNode._enum == OperatorEnum.Not)
                 {
                     _CalculateNodes[index] = valueNode;
-                    RemoveAt(index);
+                    RemoveAt(index+1);
                 }
                 else if (operatorNode._enum == OperatorEnum.Add && !valueNode._boolValue)
                     return new ValueNode(false);
@@ -125,6 +125,9 @@ namespace Expression
                     break;
                 case OperatorEnum.LessEqual:
                     valueNode = left.LessEqual(right);
+                    break;
+                case OperatorEnum.LessOrGreater:
+                    valueNode = left.LessOrGreater(right);
                     break;
                 case OperatorEnum.Less:
                     valueNode = left.Less(right);
