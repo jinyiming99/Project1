@@ -17,6 +17,7 @@
         Less,
         GreaterEqual,
         LessEqual,
+        LessOrGreater,
         Length
     }
 }
